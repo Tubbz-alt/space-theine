@@ -12,22 +12,27 @@ import { calculate } from "../services/calculator/phase-shift-calculator"
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
+  flex: 1,
+  alignItems: 'center',
+  justifyContent: 'center',
   backgroundColor: color.transparent,
   paddingHorizontal: spacing[4],
 }
 const TEXT: TextStyle = {
-  color: color.palette.white,
+  color: color.text,
   fontFamily: typography.primary,
 }
 const BOLD: TextStyle = { fontWeight: "bold" }
 const HEADER: TextStyle = {
+  backgroundColor: color.primaryDarker,
   paddingTop: spacing[3],
-  paddingBottom: spacing[4] + spacing[1],
-  paddingHorizontal: 0,
+  paddingBottom: spacing[3],
+  paddingHorizontal: spacing[4],
 }
 const HEADER_TITLE: TextStyle = {
   ...TEXT,
   ...BOLD,
+  color: color.textAlternative,
   fontSize: 12,
   lineHeight: 15,
   textAlign: "center",
@@ -57,7 +62,7 @@ const BOWSER: ImageStyle = {
 }
 const CONTENT: TextStyle = {
   ...TEXT,
-  color: "#BAB6C8",
+  color: color.text,
   fontSize: 15,
   lineHeight: 22,
   marginBottom: spacing[5],
@@ -65,11 +70,12 @@ const CONTENT: TextStyle = {
 const CONTINUE: ViewStyle = {
   paddingVertical: spacing[4],
   paddingHorizontal: spacing[4],
-  backgroundColor: "#5D2555",
+  backgroundColor: color.primary,
 }
 const CONTINUE_TEXT: TextStyle = {
   ...TEXT,
   ...BOLD,
+  color: color.textAlternative,
   fontSize: 13,
   letterSpacing: 2,
 }
@@ -105,8 +111,9 @@ export function Input1() {
   return (
     <View style={FULL}>
       <Wallpaper />
+      <Header headerText="SPACE THEINE" style={HEADER} titleStyle={HEADER_TITLE} />
       <Screen style={CONTAINER} preset="scroll" backgroundColor={color.transparent}>
-        <Header headerText="SPACE THEINE" style={HEADER} titleStyle={HEADER_TITLE} />
+
 
         <Text style={CONTENT}>Timezone difference: {timeZoneDifference.toFixed(1)}</Text>
         <Slider
@@ -116,6 +123,8 @@ export function Input1() {
           maximumValue={12}
           step={0.5}
           thumbStyle={{backgroundColor: color.primary}}
+          style={{width: '100%', marginTop: -20, marginBottom: 30}}
+          trackStyle={{marginTop: 0}}
         />
 
 

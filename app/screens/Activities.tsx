@@ -6,7 +6,7 @@ import { color, spacing, typography } from "../theme"
 import { Input, Slider } from 'react-native-elements';
 import { theme } from "@storybook/react-native/dist/preview/components/Shared/theme"
 import { stateContext } from "../comp/state"
-import { Duration } from "luxon"
+import { DateTime, Duration } from "luxon"
 import { Activity } from "../services/calculator/phase-shift-calculator"
 
 const FULL: ViewStyle = { flex: 1 }
@@ -20,63 +20,35 @@ const TEXT: TextStyle = {
 }
 const BOLD: TextStyle = { fontWeight: "bold" }
 const HEADER: TextStyle = {
+  backgroundColor: color.primaryDarker,
   paddingTop: spacing[3],
-  paddingBottom: spacing[4] + spacing[1],
-  paddingHorizontal: 0,
-  backgroundColor: 'black',
+  paddingBottom: spacing[3],
+  paddingHorizontal: spacing[4],
 }
 const HEADER_TITLE: TextStyle = {
   ...TEXT,
   ...BOLD,
+  color: color.textAlternative,
   fontSize: 12,
   lineHeight: 15,
   textAlign: "center",
   letterSpacing: 1.5,
 }
-const TITLE_WRAPPER: TextStyle = {
-  ...TEXT,
-  textAlign: "center",
+
+const ACTIVITY_BOX: ViewStyle = {
+  padding: 20,
+  paddingBottom: 40,
+  marginVertical: 6,
+  borderRadius: 5,
+  shadowColor: "#000000",
+  shadowRadius: 5,
+  shadowOpacity: 0.5,
+  shadowOffset: { width: 5, height: 5 },
 }
-const TITLE: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 28,
-  lineHeight: 38,
-  textAlign: "center",
-}
-const ALMOST: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 26,
-  fontStyle: "italic",
-}
-const BOWSER: ImageStyle = {
-  alignSelf: "center",
-  marginVertical: spacing[5],
-  maxWidth: "100%",
-}
-const CONTENT: TextStyle = {
-  ...TEXT,
-  color: "#BAB6C8",
-  fontSize: 15,
-  lineHeight: 22,
-  marginBottom: spacing[5],
-}
-const CONTINUE: ViewStyle = {
-  paddingVertical: spacing[4],
-  paddingHorizontal: spacing[4],
-  backgroundColor: "#5D2555",
-}
-const CONTINUE_TEXT: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 13,
-  letterSpacing: 2,
-}
-const FOOTER: ViewStyle = { backgroundColor: "#20162D" }
-const FOOTER_CONTENT: ViewStyle = {
-  paddingVertical: spacing[4],
-  paddingHorizontal: spacing[4],
+
+const ACTIVITY_CONTAINER: ViewStyle = {
+  ...CONTAINER,
+  paddingVertical: 12,
 }
 
 function ActivityBox({ activity }: { activity: Activity }) {
@@ -97,12 +69,17 @@ function ActivityBox({ activity }: { activity: Activity }) {
 
   const color = (() => {
     switch (activity.type) {
-      case 'sleep': return '#323e6a';
+      case 'sleep': return '#5D2555';
+      /*case 'medicine': return '#a25c5d';
+      case 'work': return '#4f6cbd';
+      case 'medicine': return '#a25c5d';
+      case 'food': return '#f3b933';
+      */
       default: return 'gray';
     }
   })();
 
-  let diffNow = activity.startTime.diffNow();
+  let diffNow = activity.startTime.diffNow().plus({ seconds: 0, minutes: 0, hours: 0, days: 0 }).normalize();
 
   let diffMessage;
 
@@ -115,7 +92,7 @@ function ActivityBox({ activity }: { activity: Activity }) {
   }
 
   return (
-    <View style={{backgroundColor: color, padding: 10}}>
+    <View style={{...ACTIVITY_BOX, backgroundColor: color}}>
       <Text style={{color: 'white'}}>{title}</Text>
       <Text style={{color: 'white'}}>{diffMessage}</Text>
     </View>
@@ -126,6 +103,8 @@ export function Activities() {
   const navigation = useNavigation()
   const [state, update] = useContext(stateContext);
 
+  console.log(DateTime.local().minus({ minutes: 5, seconds: 1 }).diffNow().normalize().minutes);
+
   return (
     <View style={FULL}>
       <Wallpaper />
@@ -133,9 +112,10 @@ export function Activities() {
         style={HEADER}
         titleStyle={HEADER_TITLE}
         leftIcon="back"
+        headerText="SPACE THEINE"
         onLeftPress={() => navigation.navigate('input1')}
       />
-      <Screen style={CONTAINER} preset="scroll" backgroundColor={color.transparent}>
+      <Screen style={ACTIVITY_CONTAINER} preset="scroll" backgroundColor={color.transparent}>
         {state.activities.map((a, i) => (
           <ActivityBox activity={a} key={i} />
         ))}
