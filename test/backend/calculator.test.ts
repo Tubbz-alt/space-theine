@@ -17,10 +17,46 @@ describe("Backend scheduler", () => {
     expect(calculate(params)).toHaveProperty("activities")
   })
 
-  it("should calculate simple time shift", () => {
+  it("should calculate positive time shift", () => {
     const params: Params = {
       startAt: DateTime.fromISO("2020-10-05T08:00:00"),
-      timeZoneDifference: -6, // positive so we travel west
+      timeZoneDifference: 6, // positive so we travel west => we have to wake up earlier
+      normalSleepingHoursStart: { hours: 23, minutes: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+    }
+
+    const activities = createSleepActivities(params)
+
+    expect(activities.length).toBe(4)
+    expect(activities).toStrictEqual([
+      {
+        startTime: DateTime.fromISO("2020-10-05T21:30:00"),
+        duration: Duration.fromISO("PT8H"),
+        type: "sleep",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-06T20:00:00"),
+        duration: Duration.fromISO("PT8H"),
+        type: "sleep",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-07T18:30:00"),
+        duration: Duration.fromISO("PT8H"),
+        type: "sleep",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-08T17:00:00"),
+        duration: Duration.fromISO("PT8H"),
+        type: "sleep",
+      },
+    ])
+  })
+
+
+  it("should calculate negative time shift", () => {
+    const params: Params = {
+      startAt: DateTime.fromISO("2020-10-05T08:00:00"),
+      timeZoneDifference: -6, // negative so we travel west => we have to wake up later
       normalSleepingHoursStart: { hours: 23, minutes: 0 },
       normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
     }
