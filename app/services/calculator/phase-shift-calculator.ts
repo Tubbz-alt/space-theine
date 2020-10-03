@@ -27,7 +27,7 @@ export type Params = {
 export type Activity = {
   startTime: DateTime,
   duration: Duration,
-  type: 'sleep' | 'melatonin' | 'avoid-bright-light' | 'seek-darkness' | 'seek-bright-light',
+  type: 'sleep' | 'melatonin' | 'avoid-bright-light' | 'seek-darkness' | 'seek-bright-light' | 'avoid-darkness' | 'avoid-morning-light',
 }
 
 export type Result = {
@@ -112,19 +112,40 @@ export const createCountermeasureActivities = (
       countermeasureActivities.push(seekDarknessActivity)
       /** maximize morning light exposure */
       const seekBightLightActivity: Activity = {
-        startTime: sleepActivity.startTime.plus(sleepActivity.duration.plus({ hours: 1 })),
+        startTime: sleepActivity.startTime.plus(sleepActivity.duration),
         duration: Duration.fromObject({ hours: 1 }),
         type: 'seek-bright-light'
       }
-      /** TODO: Add a avoid-darkness for next ? hours */
+      const avoidDarknessActivity: Activity = {
+        startTime: sleepActivity.startTime.plus(sleepActivity.duration.plus({ hours: 1 })),
+        duration: Duration.fromObject({ hours: 4 }),
+        type: 'avoid-darkness'
+      }
       countermeasureActivities.push(seekBightLightActivity)
+      countermeasureActivities.push(avoidDarknessActivity)
     }
   } else { /** Westwards */
     for (const sleepActivity of sleepActivities) {
       /** maximize evening light exposure */
-      /** TODO */
+      const avoidDarknessActivity: Activity = {
+        startTime: sleepActivity.startTime.minus({ hours: 5 }),
+        duration: Duration.fromObject({ hours: 4 }),
+        type: 'avoid-darkness'
+      }
+      const seekBightLightActivity: Activity = {
+        startTime: sleepActivity.startTime.minus({ hours: 1 }),
+        duration: Duration.fromObject({ hours: 1 }),
+        type: 'seek-bright-light'
+      }
+      countermeasureActivities.push(seekBightLightActivity)
+      countermeasureActivities.push(avoidDarknessActivity)
       /** minimize morning light exposure */
-      /** TODO */
+      const avoidMorningLightActivity: Activity = {
+        startTime: sleepActivity.startTime,
+        duration: Duration.fromObject({ minutes: 5 }),
+        type: 'avoid-morning-light'
+      }
+      countermeasureActivities.push(avoidMorningLightActivity)
     }
 
   }
