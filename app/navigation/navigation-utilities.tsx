@@ -15,9 +15,9 @@ export const RootNavigation = {
 
 export const setRootNavigation = (ref: React.RefObject<NavigationContainerRef>) => {
   for (const method in RootNavigation) {
-    RootNavigation[method] = (...args: any) => {
+    (RootNavigation as any)[method] = (...args: any) => {
       if (ref.current) {
-        return ref.current[method](...args)
+        return (ref.current as any)[method](...args)
       }
     }
   }
@@ -26,8 +26,8 @@ export const setRootNavigation = (ref: React.RefObject<NavigationContainerRef>) 
 /**
  * Gets the current screen from any navigation state.
  */
-export function getActiveRouteName(state: NavigationState | PartialState<NavigationState>) {
-  const route = state.routes[state.index]
+export function getActiveRouteName(state: NavigationState | PartialState<NavigationState>): any {
+  const route = state.routes[state.index as any]
 
   // Found the active route -- return the name
   if (!route.state) return route.name
@@ -94,13 +94,13 @@ export function useNavigationPersistence(storage: any, persistenceKey: string) {
   const [isRestoringNavigationState, setIsRestoringNavigationState] = useState(true)
 
   const routeNameRef = useRef()
-  const onNavigationStateChange = (state) => {
+  const onNavigationStateChange = (state: any) => {
     const previousRouteName = routeNameRef.current
     const currentRouteName = getActiveRouteName(state)
 
     if (previousRouteName !== currentRouteName) {
       // track screens.
-      __DEV__ && console.tron.log(currentRouteName)
+      __DEV__ && (console as any).tron.log(currentRouteName)
     }
 
     // Save the current route name for later comparision

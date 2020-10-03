@@ -6,6 +6,7 @@ import { BulletItem, Button, Header, Text, Screen, Wallpaper } from "../../compo
 import { color, spacing } from "../../theme"
 import { Api } from "../../services/api"
 import { save } from "../../utils/storage"
+import { l } from "i18n-js"
 export const logoIgnite = require("./logo-ignite.png")
 export const heart = require("./heart.png")
 
@@ -79,12 +80,15 @@ const HINT: TextStyle = {
 
 export const DemoScreen = observer(function DemoScreen() {
   const navigation = useNavigation()
+
+  const move = () => navigation.navigate('input1');
+
   const goBack = () => navigation.goBack()
 
   const demoReactotron = React.useMemo(
     () => async () => {
-      console.tron.log("Your Friendly tron log message")
-      console.tron.logImportant("I am important")
+      (console.tron.log as any)("Your Friendly tron log message");
+      (console.tron.logImportant as any)("I am important");
       console.tron.display({
         name: "DISPLAY",
         value: {
@@ -142,6 +146,12 @@ export const DemoScreen = observer(function DemoScreen() {
             textStyle={DEMO_TEXT}
             tx="demoScreen.reactotron"
             onPress={demoReactotron}
+          />
+          <Button
+            style={DEMO}
+            textStyle={DEMO_TEXT}
+            text="move"
+            onPress={move}
           />
           <Text style={HINT} tx={`demoScreen.${Platform.OS}ReactotronHint`} />
         </View>
