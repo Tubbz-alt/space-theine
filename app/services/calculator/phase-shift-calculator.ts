@@ -1,32 +1,33 @@
-export type PhaseShiftParams = {
-  launch_time: Date
+import {DateTime, Duration} from 'luxon';
+
+export type SimpleTime = { // @TODO: library?
+  hours: number,
+  minutes: number,
 }
 
-export type PhaseShiftResultDay = {
-  sleep_at: Date,
+export type Params = {
+  timeZoneDifference: number, // => Duration?
+  normalSleepingHoursStart: SimpleTime,
+  normalSleepingHoursDuration: Duration,
 }
 
-export type PhaseShiftResult = {
-  days: Array<PhaseShiftResultDay>,
+export type Activity = {
+  startTime: DateTime,
+  duration: Duration,
+  type: 'sleep', // @TODO: add more types
 }
 
-export interface IPhaseShiftCalculator {
-  calculate(): PhaseShiftResult;
+export type Result = {
+  activities: Array<Activity>,
 }
 
-export class PhaseShiftCalculator implements IPhaseShiftCalculator {
-  private params: PhaseShiftParams;
-
-  constructor(params: PhaseShiftParams) {
-    this.params = params;
-  }
-
-  public calculate(): PhaseShiftResult {
-    const day0: PhaseShiftResultDay = {
-      sleep_at: new Date(),
-    };
-    return {days: [
-      day0,
-    ]};
-  }
+export const calculate = (Params): Result => {
+  const activity1: Activity = {
+    startTime: DateTime.local(),
+    duration: Duration.fromObject({hours: 2}),
+    type: 'sleep',
+  };
+  return {activities: [
+    activity1,
+  ]};
 }

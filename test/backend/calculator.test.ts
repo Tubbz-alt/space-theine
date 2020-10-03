@@ -1,22 +1,16 @@
-import {PhaseShiftCalculator, PhaseShiftResult, PhaseShiftParams} from '../../app/services/calculator/phase-shift-calculator';
+import {calculate, Result, Params} from '../../app/services/calculator/phase-shift-calculator';
+import {DateTime, Duration} from 'luxon';
 
 describe("Backend scheduler", () => {
   it("should construct a proper object", () => {
-    const params: PhaseShiftParams = {
-      launch_time: new Date(),
+    const params: Params = {
+      timeZoneDifference: 6,
+      normalSleepingHoursStart: {hours: 23, minutes: 0},
+      normalSleepingHoursDuration: Duration.fromObject({hours: 8}),
     };
-    const calculator = new PhaseShiftCalculator(params);
-
-    expect(calculator).toBeInstanceOf(PhaseShiftCalculator);
-    expect(calculator.calculate()).toHaveProperty('days');
+    expect(calculate(params)).toHaveProperty('activities');
   });
   it("should calculate simple time shift", () => {
-    const params: PhaseShiftParams = {
-      launch_time: new Date(),
-    };
-    const calculator = new PhaseShiftCalculator(params);
 
-    expect(calculator).toBeInstanceOf(PhaseShiftCalculator);
-    expect(calculator.calculate()).toHaveProperty('days');
   });
 });
