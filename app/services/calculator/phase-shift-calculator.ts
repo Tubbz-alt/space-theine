@@ -35,7 +35,7 @@ export type Result = {
 
 /* PRIVATE FUNCTIONS */
 
-const getCurrentPossibleTimeShift = (params: Params) => {
+const getCurrentPossibleTimeShift = (params: Params): number => {
   return isTimeshiftPositive(params) ?
     maximumDailyTimeShiftNegative : maximumDailyTimeShiftPositive;
 };
@@ -43,13 +43,11 @@ const getCurrentPossibleTimeShift = (params: Params) => {
 /**
  * In other words: Is timeshift westward
  */
-const isTimeshiftPositive = (params: Params) => {
+const isTimeshiftPositive = (params: Params): boolean => {
   return params.timeZoneDifference > 0;
 };
 
-/* PUBLIC FUNCTIONS */
-
-export const calculate = (params: Params): Result => {
+const addSleepActivities = (params: Params): Activity[] => {
   const timeshiftDirectionPositive = isTimeshiftPositive(params); // I know...
   const currentDailyTimeShift = getCurrentPossibleTimeShift(params);
 
@@ -57,7 +55,7 @@ export const calculate = (params: Params): Result => {
   if (startAt === undefined) {
     startAt = DateTime.local();
   }
-  let activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
+  const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
 
   let timeshiftLeft = Math.abs(params.timeZoneDifference);
   // let lastActivityTime: DateTime|null = null;
@@ -78,5 +76,14 @@ export const calculate = (params: Params): Result => {
     timeshiftLeft -= currentDailyTimeShift;
     // lastActivityTime = 0;
   }
+  return activities;
+};
+
+/* PUBLIC FUNCTIONS */
+
+export const calculate = (params: Params): Result => {
+  const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
+  const sleepActivities = addSleepActivities(params);
+  activities.push(...sleepActivities);
   return {activities};
 };
