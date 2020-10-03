@@ -84,6 +84,9 @@ export function Activities() {
   return (
     <View style={FULL}>
       <Wallpaper />
+      <Header
+        onLeftPress={() => navigation.navigate('input1')}
+      />
       <Screen style={CONTAINER} preset="scroll" backgroundColor={color.transparent}>
         <Text>{JSON.stringify(state)}</Text>
       </Screen>
