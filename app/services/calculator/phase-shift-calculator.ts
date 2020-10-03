@@ -1,4 +1,5 @@
-import {DateTime, Duration} from 'luxon';
+import { DateTime, Duration } from 'luxon';
+import { Activities } from '../../screens';
 
 /* PUBLIC AND PRIVATE CONSTS */
 
@@ -26,7 +27,7 @@ export type Params = {
 export type Activity = {
   startTime: DateTime,
   duration: Duration,
-  type: 'sleep', // @TODO: add more types
+  type: 'sleep' | 'melatonin', // @TODO: add more types
 }
 
 export type Result = {
@@ -88,11 +89,33 @@ export const addSleepActivities = (params: Params): Activity[] => {
   return activities;
 };
 
+
+
+export const createMelatoninIntakeActivies = (
+  params: Params, sleep_activities: Activity[]
+): Activity[] => {
+  let melatonin_intake_activities = <Activity[]>[]
+  if (params.timeZoneDifference > 0) { /** Eastwards */
+    for (const sleep_activity of sleep_activities) {
+      const intake_melatonin_time: DateTime = sleep_activity.startTime.minus({ hours: 6.5 })
+      const melatonin_intake_activity: Activity = {
+        startTime: intake_melatonin_time,
+        duration: Duration.fromObject({ minutes: 5 }),
+        type: 'melatonin'
+      }
+      melatonin_intake_activities.push(melatonin_intake_activity)
+    }
+  } else { /** Westwards */
+    /** No Melatonin will be taken westwards */
+  }
+  return melatonin_intake_activities
+}
+
 /* PUBLIC FUNCTIONS */
 
 export const calculate = (params: Params): Result => {
   const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
   const sleepActivities = addSleepActivities(params);
   activities.push(...sleepActivities);
-  return {activities};
+  return { activities };
 };
