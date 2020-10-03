@@ -22,6 +22,9 @@ export type Result = {
 }
 
 export const calculate = (Params): Result => {
+  const maximumDailyTimeShiftPositive: number = 1;
+  const maximumDailyTimeShiftNegative: number = 1.5;
+
   const activity1: Activity = {
     startTime: DateTime.local(),
     duration: Duration.fromObject({hours: 2}),
