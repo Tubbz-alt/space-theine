@@ -21,7 +21,7 @@ export type Result = {
   activities: Array<Activity>,
 }
 
-export const calculate = (Params): Result => {
+export const calculate = (params: Params): Result => {
   const maximumDailyTimeShiftPositive: number = 1;
   const maximumDailyTimeShiftNegative: number = 1.5;
 
