@@ -1,4 +1,5 @@
-import {DateTime, Duration} from 'luxon';
+import { DateTime, Duration } from 'luxon';
+import { Activities } from '../../screens';
 
 /* PUBLIC AND PRIVATE CONSTS */
 
@@ -26,7 +27,7 @@ export type Params = {
 export type Activity = {
   startTime: DateTime,
   duration: Duration,
-  type: 'sleep', // @TODO: add more types
+  type: 'sleep' | 'melatonin', // @TODO: add more types
 }
 
 export type Result = {
@@ -47,9 +48,14 @@ const isTimeshiftPositive = (params: Params): boolean => {
   return params.timeZoneDifference > 0;
 };
 
-const addSleepActivities = (params: Params): Activity[] => {
+/* FUNCTIONS MADE PUBLIC FOR UNIT TESTS */
+
+export const createSleepActivities = (params: Params): Activity[] => {
   const timeshiftDirectionPositive = isTimeshiftPositive(params); // I know...
   const currentDailyTimeShift = getCurrentPossibleTimeShift(params);
+  // if time shift is positive it means we travel west => so we should wake up ealier => so we dailyShift should be negative
+  // i'M So lOgiCaL
+  const currentDailyTimeShiftWithSign = timeshiftDirectionPositive? -currentDailyTimeShift : currentDailyTimeShift;
 
   let startAt = params.startAt;
   if (startAt === undefined) {
@@ -59,6 +65,7 @@ const addSleepActivities = (params: Params): Activity[] => {
 
   let timeshiftLeft = Math.abs(params.timeZoneDifference);
   // let lastActivityTime: DateTime|null = null;
+  let dayNumber = 0;
   while (timeshiftLeft > 0) {
     let activityStartTime = DateTime.fromObject({
       ...startAt.toObject(),
@@ -67,6 +74,8 @@ const addSleepActivities = (params: Params): Activity[] => {
       second: 0,
       millisecond: 0,
     });
+    activityStartTime = activityStartTime.plus({days: dayNumber, hours: currentDailyTimeShiftWithSign*(dayNumber+1)});
+
     let activity: Activity = {
       type: 'sleep',
       startTime: activityStartTime,
@@ -75,15 +84,40 @@ const addSleepActivities = (params: Params): Activity[] => {
     activities.push(activity);
     timeshiftLeft -= currentDailyTimeShift;
     // lastActivityTime = 0;
+    dayNumber++;
   }
   return activities;
 };
+
+
+
+export const createMelatoninIntakeActivies = (
+  params: Params, sleepActivities: Activity[]
+): Activity[] => {
+  let melatoninIntakeActivities = <Activity[]>[]
+  if (params.timeZoneDifference > 0) { /** Eastwards */
+    for (const sleepActivity of sleepActivities) {
+      const intakeMelatoninTime: DateTime = sleepActivity.startTime.minus({ hours: 6.5 })
+      const melatoninIntakeActivity: Activity = {
+        startTime: intakeMelatoninTime,
+        duration: Duration.fromObject({ minutes: 5 }),
+        type: 'melatonin'
+      }
+      melatoninIntakeActivities.push(melatoninIntakeActivity)
+    }
+  } else { /** Westwards */
+    /** No Melatonin will be taken westwards */
+  }
+  return melatoninIntakeActivities
+}
 
 /* PUBLIC FUNCTIONS */
 
 export const calculate = (params: Params): Result => {
   const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
-  const sleepActivities = addSleepActivities(params);
+  const sleepActivities = createSleepActivities(params);
   activities.push(...sleepActivities);
-  return {activities};
+  const melatoninIntakeActivities = createMelatoninIntakeActivies(params, sleepActivities)
+  activities.push(...melatoninIntakeActivities);
+  return { activities };
 };
