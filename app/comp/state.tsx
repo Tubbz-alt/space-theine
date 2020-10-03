@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import { Text } from '../components';
-import { SimpleTime } from '../services/calculator/phase-shift-calculator';
+import { Activity, SimpleTime } from '../services/calculator/phase-shift-calculator';
 import { Duration } from 'luxon';
 
 export type State = {
@@ -9,7 +9,8 @@ export type State = {
     timeZoneDifference: number,
     normalSleepingHoursStart: SimpleTime,
     normalSleepingHoursDuration: Duration,
-  }
+  },
+  activities: Activity[],
 }
 
 const DEFAULT_STATE: State = {
@@ -20,13 +21,16 @@ const DEFAULT_STATE: State = {
       minutes: 0,
     },
     normalSleepingHoursDuration: Duration.fromMillis(1000 * 60 * 60 * 8),
-  }
+  },
+  activities: [],
 }
 
 let globalState: State | null = null;
 
 function reducer(oldState: State, update: (state: State) => State) {
   globalState = update(oldState);
+  console.log(oldState, 'changed to');
+  console.log(globalState);
   return globalState;
 }
 
@@ -43,7 +47,7 @@ export function StateProvider({ children }: any) {
         update(() => state);
         setReady(true);
       })
-  })
+  }, []);
 
   if (!ready) {
     return <Text>loading...</Text>;

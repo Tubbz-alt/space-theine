@@ -7,6 +7,8 @@ import { Input, Slider } from 'react-native-elements';
 import { theme } from "@storybook/react-native/dist/preview/components/Shared/theme"
 import { stateContext } from "../comp/state"
 import { Duration } from "luxon"
+import { calculate } from "../services/calculator/phase-shift-calculator"
+
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
@@ -125,41 +127,18 @@ export function Input1() {
         <Input value={sleepDuration} onChangeText={setSleepDuration}/>
         {!isValidHour(sleepDuration) && <Text style={{color: 'red'}}>Provide hour number, e.g. 21</Text>}
 
-        <Button
-          disabled={!isValidHour(sleepTime) || !isValidHour(sleepDuration)}
-          style={CONTINUE}
-          textStyle={CONTINUE_TEXT}
-          text="Save"
-          onPress={() => {
-            save();
-            navigation.navigate('activities');
-          }}
-        />
-
-        {/*
-        <Text style={TITLE_WRAPPER}>
-          <Text style={TITLE} text="Your new app, " />
-          <Text style={ALMOST} text="almost" />
-          <Text style={TITLE} text="!" />
-        </Text>
-        <Text style={TITLE} preset="header">nice!</Text>
-        <Text style={CONTENT}>
-          This probably isn't what your app is going to look like. Unless your designer handed you
-          this screen and, in that case, congrats! You're ready to ship.
-        </Text>
-        <Text style={CONTENT}>
-          For everyone else, this is where you'll see a live preview of your fully functioning app
-          using Ignite.
-        </Text>
-
-        */}
       </Screen>
       <SafeAreaView style={FOOTER}>
         <View style={FOOTER_CONTENT}>
           <Button
+            disabled={!isValidHour(sleepTime) || !isValidHour(sleepDuration)}
             style={CONTINUE}
             textStyle={CONTINUE_TEXT}
             tx="welcomeScreen.continue"
+            onPress={() => {
+              save();
+              navigation.navigate('calculating');
+            }}
           />
         </View>
       </SafeAreaView>
