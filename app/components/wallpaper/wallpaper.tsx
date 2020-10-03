@@ -1,5 +1,5 @@
 import React from "react"
-import { Image } from "react-native"
+import { Image, View } from "react-native"
 import { presets } from "./wallpaper.presets"
 import { WallpaperProps } from "./wallpaper.props"
 
@@ -21,5 +21,6 @@ export function Wallpaper(props: WallpaperProps) {
   // figure out which image to use
   const source = backgroundImage || defaultImage
 
+  // return <View style={{backgroundColor: 'white'}} />;
   return <Image source={source} style={style} />
 }

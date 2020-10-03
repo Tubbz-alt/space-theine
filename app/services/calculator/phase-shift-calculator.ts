@@ -21,7 +21,7 @@ export type Result = {
   activities: Array<Activity>,
 }
 
-export const calculate = (Params): Result => {
+export const calculate = (p: Params): Result => {
   const activity1: Activity = {
     startTime: DateTime.local(),
     duration: Duration.fromObject({hours: 2}),
