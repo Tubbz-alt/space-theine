@@ -110,5 +110,7 @@ export const calculate = (params: Params): Result => {
   const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
   const sleepActivities = addSleepActivities(params);
   activities.push(...sleepActivities);
+  const melatoninIntakeActivities = createMelatoninIntakeActivies(params, sleepActivities)
+  activities.push(...melatoninIntakeActivities);
   return { activities };
 };
