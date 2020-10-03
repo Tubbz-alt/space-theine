@@ -50,6 +50,7 @@
     "react-navigation": "^4.4.2",
     "react-navigation-stack": "^2.8.4",
     "reactotron-mst": "^3.1.1",
+    "reactotron-react-js": "^3.3.7",
     "reactotron-react-native": "^5.0.0",
     "validate.js": "0.13.1"
   },
