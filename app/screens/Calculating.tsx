@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native"
-import React, { useContext, useEffect, useReducer, useRef, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { View, Image, ViewStyle, TextStyle, ImageStyle, SafeAreaView } from "react-native"
 import { Button, Header, Screen, Text, TextField, Wallpaper } from "../components"
 import { color, spacing, typography } from "../theme"
@@ -7,7 +7,8 @@ import { Input, Slider } from 'react-native-elements';
 import { theme } from "@storybook/react-native/dist/preview/components/Shared/theme"
 import { stateContext } from "../comp/state"
 import { Duration } from "luxon"
-import { Activity } from "../services/calculator/phase-shift-calculator"
+import { calculate } from "../services/calculator/phase-shift-calculator"
+
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
@@ -23,7 +24,6 @@ const HEADER: TextStyle = {
   paddingTop: spacing[3],
   paddingBottom: spacing[4] + spacing[1],
   paddingHorizontal: 0,
-  backgroundColor: 'black',
 }
 const HEADER_TITLE: TextStyle = {
   ...TEXT,
@@ -79,68 +79,25 @@ const FOOTER_CONTENT: ViewStyle = {
   paddingHorizontal: spacing[4],
 }
 
-function ActivityBox({ activity }: { activity: Activity }) {
-  const ref = useRef<any>(0);
-  const [, forceUpdate] = useReducer(n => n+1, 0);
-
-  useEffect(() => {
-      ref.current = setInterval(forceUpdate, 1000 * 60);
-      return () => clearInterval(ref.current);
-  }, []);
-
-  const title = (() => {
-    switch (activity.type) {
-      case 'sleep': return 'Time for sleep!';
-      default: return 'Scratch your ass';
-    }
-  })();
-
-  const color = (() => {
-    switch (activity.type) {
-      case 'sleep': return '#323e6a';
-      default: return 'gray';
-    }
-  })();
-
-  let diffNow = activity.startTime.diffNow();
-
-  let diffMessage;
-
-  if (diffNow.minutes >= -1 && diffNow.minutes <= 1) {
-    diffMessage = 'just now';
-  } else if (diffNow.minutes > 1) {
-    diffMessage = `in ${diffNow.minutes} minutes`;
-  } else {
-    diffMessage = `${diffNow.minutes} ago`;
-  }
-
-  return (
-    <View style={{backgroundColor: color, padding: 10}}>
-      <Text style={{color: 'white'}}>{title}</Text>
-      <Text style={{color: 'white'}}>{diffMessage}</Text>
-    </View>
-  )
-}
-
-export function Activities() {
-  const navigation = useNavigation()
+export function Calculating() {
+  const navigation = useNavigation();
   const [state, update] = useContext(stateContext);
 
+  useEffect(() => {
+    const { activities } = calculate({
+      timeZoneDifference: state.input.timeZoneDifference,
+      normalSleepingHoursStart: state.input.normalSleepingHoursStart,
+      normalSleepingHoursDuration: state.input.normalSleepingHoursDuration,
+    });
+    update(state => ({
+      ...state,
+      activities,
+    }));
+    navigation.navigate('activities');
+  }, []);
+
+
   return (
-    <View style={FULL}>
-      <Wallpaper />
-      <Header
-        style={HEADER}
-        titleStyle={HEADER_TITLE}
-        leftIcon="back"
-        onLeftPress={() => navigation.navigate('input1')}
-      />
-      <Screen style={CONTAINER} preset="scroll" backgroundColor={color.transparent}>
-        {state.activities.map((a, i) => (
-          <ActivityBox activity={a} key={i} />
-        ))}
-        <Text style={{color: 'black'}}>DEBUG: {JSON.stringify(state)}</Text>
-      </Screen>
-    </View>
+    <Text>calculating...</Text>
   )
 }
