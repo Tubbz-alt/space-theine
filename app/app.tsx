@@ -14,7 +14,7 @@ import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowSafeAreaInsets } from "react-native-safe-area-context"
-// import { initFonts } from "./theme/fonts"
+import { initFonts } from "./theme/fonts"
 import * as storage from "./utils/storage"
 import {
   useBackButtonHandler,
@@ -50,15 +50,13 @@ function App() {
     NAVIGATION_PERSISTENCE_KEY,
   )
 
-  /*
   // Kick off initial async loading actions, like loading fonts and RootStore
   useEffect(() => {
     ;(async () => {
       await initFonts()
-      setupRootStore().then(setRootStore)
+      //setupRootStore().then(setRootStore)
     })()
   }, [])
-  */
 
   // Before we show the app, we have to wait for our state to be ready.
   // In the meantime, don't render anything. This will be the background
