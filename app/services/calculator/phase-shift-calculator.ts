@@ -84,7 +84,7 @@ export const addSleepActivities = (params: Params): Activity[] => {
 
 
 
-const createMelatoninIntakeActivies = (
+export const createMelatoninIntakeActivies = (
   params: Params, sleep_activities: Activity[]
 ): Activity[] => {
   let melatonin_intake_activities = <Activity[]>[]
