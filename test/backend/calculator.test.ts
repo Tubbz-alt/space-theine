@@ -1,4 +1,4 @@
-import { calculate, Result, Params } from "../../app/services/calculator/phase-shift-calculator"
+import { calculate, addSleepActivities, Result, Params } from "../../app/services/calculator/phase-shift-calculator"
 import { DateTime, Duration } from "luxon"
 
 describe("Backend scheduler", () => {
@@ -19,38 +19,37 @@ describe("Backend scheduler", () => {
       normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
     }
 
-    const result = calculate(params)
+    const activities = addSleepActivities(params)
 
-    expect(result).toHaveProperty("activities")
-    expect(result.activities.length).toBe(6)
-    expect(result.activities).toStrictEqual([
+    expect(activities.length).toBe(6)
+    expect(activities).toStrictEqual([
       {
-        startTime: DateTime.fromISO("2020-10-05T23:00:00"),
+        startTime: DateTime.fromISO("2020-10-06T00:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-05T23:00:00"),
+        startTime: DateTime.fromISO("2020-10-07T01:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-05T23:00:00"),
+        startTime: DateTime.fromISO("2020-10-08T02:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-05T23:00:00"),
+        startTime: DateTime.fromISO("2020-10-09T03:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-05T23:00:00"),
+        startTime: DateTime.fromISO("2020-10-10T04:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-05T23:00:00"),
+        startTime: DateTime.fromISO("2020-10-11T05:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
