@@ -22,6 +22,7 @@
     "storybook": "start-storybook -p 9001 -c ./storybook",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:backend": "jest backend",
     "test:watch:backend": "jest --watch backend/",
     "adb": "adb reverse tcp:9090 tcp:9090 && adb reverse tcp:3000 tcp:3000 && adb reverse tcp:9001 tcp:9001 && adb reverse tcp:8081 tcp:8081"
   },

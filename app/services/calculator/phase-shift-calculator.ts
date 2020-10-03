@@ -47,7 +47,9 @@ const isTimeshiftPositive = (params: Params): boolean => {
   return params.timeZoneDifference > 0;
 };
 
-const addSleepActivities = (params: Params): Activity[] => {
+/* FUNCTIONS MADE PUBLIC FOR UNIT TESTS */
+
+export const addSleepActivities = (params: Params): Activity[] => {
   const timeshiftDirectionPositive = isTimeshiftPositive(params); // I know...
   const currentDailyTimeShift = getCurrentPossibleTimeShift(params);
 
