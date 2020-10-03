@@ -85,23 +85,23 @@ export const addSleepActivities = (params: Params): Activity[] => {
 
 
 export const createMelatoninIntakeActivies = (
-  params: Params, sleep_activities: Activity[]
+  params: Params, sleepActivities: Activity[]
 ): Activity[] => {
-  let melatonin_intake_activities = <Activity[]>[]
+  let melatoninIntakeActivities = <Activity[]>[]
   if (params.timeZoneDifference > 0) { /** Eastwards */
-    for (const sleep_activity of sleep_activities) {
-      const intake_melatonin_time: DateTime = sleep_activity.startTime.minus({ hours: 6.5 })
-      const melatonin_intake_activity: Activity = {
-        startTime: intake_melatonin_time,
+    for (const sleepActivity of sleepActivities) {
+      const intakeMelatoninTime: DateTime = sleepActivity.startTime.minus({ hours: 6.5 })
+      const melatoninIntakeActivity: Activity = {
+        startTime: intakeMelatoninTime,
         duration: Duration.fromObject({ minutes: 5 }),
         type: 'melatonin'
       }
-      melatonin_intake_activities.push(melatonin_intake_activity)
+      melatoninIntakeActivities.push(melatoninIntakeActivity)
     }
   } else { /** Westwards */
     /** No Melatonin will be taken westwards */
   }
-  return melatonin_intake_activities
+  return melatoninIntakeActivities
 }
 
 /* PUBLIC FUNCTIONS */
