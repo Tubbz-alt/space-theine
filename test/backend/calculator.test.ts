@@ -1,8 +1,7 @@
 import {
   calculate,
-  addSleepActivities,
+  createSleepActivities,
   createMelatoninIntakeActivies,
-  Result,
   Params,
   Activity
 } from "../../app/services/calculator/phase-shift-calculator"
@@ -26,7 +25,7 @@ describe("Backend scheduler", () => {
       normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
     }
 
-    const activities = addSleepActivities(params)
+    const activities = createSleepActivities(params)
 
     expect(activities.length).toBe(6)
     expect(activities).toStrictEqual([

@@ -50,7 +50,7 @@ const isTimeshiftPositive = (params: Params): boolean => {
 
 /* FUNCTIONS MADE PUBLIC FOR UNIT TESTS */
 
-export const addSleepActivities = (params: Params): Activity[] => {
+export const createSleepActivities = (params: Params): Activity[] => {
   const timeshiftDirectionPositive = isTimeshiftPositive(params); // I know...
   const currentDailyTimeShift = getCurrentPossibleTimeShift(params);
   // if time shift is positive it means we travel west => so we should wake up ealier => so we dailyShift should be negative
@@ -115,7 +115,7 @@ export const createMelatoninIntakeActivies = (
 
 export const calculate = (params: Params): Result => {
   const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
-  const sleepActivities = addSleepActivities(params);
+  const sleepActivities = createSleepActivities(params);
   activities.push(...sleepActivities);
   return { activities };
 };
