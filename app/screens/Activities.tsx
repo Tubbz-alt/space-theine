@@ -63,6 +63,7 @@ function ActivityBox({ activity }: { activity: Activity }) {
   const title = (() => {
     switch (activity.type) {
       case 'sleep': return 'Time for sleep!';
+      case 'melatonin': return 'Take melatonin!';
       default: return 'Scratch your ass';
     }
   })();
@@ -70,9 +71,9 @@ function ActivityBox({ activity }: { activity: Activity }) {
   const color = (() => {
     switch (activity.type) {
       case 'sleep': return '#5D2555';
+      case 'melatonin': return '#ab4d4e';
       /*case 'medicine': return '#a25c5d';
       case 'work': return '#4f6cbd';
-      case 'medicine': return '#a25c5d';
       case 'food': return '#f3b933';
       */
       default: return 'gray';
@@ -88,7 +89,7 @@ function ActivityBox({ activity }: { activity: Activity }) {
   } else if (diffNow.minutes > 1) {
     diffMessage = `in ${diffNow.minutes} minutes`;
   } else {
-    diffMessage = `${diffNow.minutes} ago`;
+    diffMessage = `${Math.abs(diffNow.minutes)} minutes ago`;
   }
 
   return (

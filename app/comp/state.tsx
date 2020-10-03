@@ -9,6 +9,7 @@ export type State = {
     timeZoneDifference: number,
     normalSleepingHoursStart: SimpleTime,
     normalSleepingHoursDuration: Duration,
+    fresh: boolean,
   },
   activities: Activity[],
 }
@@ -21,6 +22,7 @@ const DEFAULT_STATE: State = {
       minutes: 0,
     },
     normalSleepingHoursDuration: Duration.fromMillis(1000 * 60 * 60 * 8),
+    fresh: false,
   },
   activities: [],
 }

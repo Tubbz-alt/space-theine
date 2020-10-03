@@ -104,6 +104,7 @@ export function Input1() {
           minutes: 0,
         },
         normalSleepingHoursDuration: Duration.fromMillis(1000 * 60 * 60 * Number(sleepDuration)),
+        fresh: true,
       }
     }));
   }

@@ -16,6 +16,12 @@ export function Calculating() {
   const [state, update] = useContext(stateContext);
 
   useEffect(() => {
+    if (!state.input.fresh) {
+      console.log('shouldgoback');
+      navigation.navigate('input1');
+      return;
+    }
+
     const { activities } = calculate({
       timeZoneDifference: state.input.timeZoneDifference,
       normalSleepingHoursStart: state.input.normalSleepingHoursStart,
@@ -23,9 +29,13 @@ export function Calculating() {
     });
     update(state => ({
       ...state,
+      input: {
+        ...state.input,
+        fresh: false,
+      },
       activities,
     }));
-    navigation.navigate('activities');
+    navigation.navigate('activities', {});
   }, []);
 
 
