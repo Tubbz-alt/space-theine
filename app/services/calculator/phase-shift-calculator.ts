@@ -23,12 +23,15 @@ export type Params = {
   timeZoneDifference: number, // => Duration?
   normalSleepingHoursStart: SimpleTime,
   normalSleepingHoursDuration: Duration,
+  normalBreakfastStart: SimpleTime | null,
+  normalLunchStart: SimpleTime | null,
+  normalDinnerStart: SimpleTime | null,
 }
 
 export type Activity = {
   startTime: DateTime,
   duration: Duration,
-  type: 'sleep' | 'melatonin' | 'avoid-bright-light' | 'seek-darkness' | 'seek-bright-light' | 'avoid-darkness' | 'avoid-morning-light',
+  type: 'sleep' | 'melatonin' | 'avoid-bright-light' | 'seek-darkness' | 'seek-bright-light' | 'avoid-darkness' | 'avoid-morning-light' | 'avoid-food',
 }
 
 export type Result = {
@@ -89,6 +92,25 @@ export const createSleepActivities = (params: Params): Activity[] => {
   }
   return activities;
 };
+
+
+/** TODO: Add test */
+export const createFoodAvoidanceActivities = (
+  params: Params, sleepActivities: Activity[]
+): Activity[] => {
+  let foodAvoidanceActivities = <Activity[]>[]
+  for (const sleepActivity of sleepActivities) {
+    const avoidFoodActivity: Activity = {
+      startTime: sleepActivity.startTime.minus({ hours: 2 }),
+      duration: Duration.fromObject({ hours: 2 }),
+      type: 'avoid-food'
+    }
+    foodAvoidanceActivities.push(avoidFoodActivity)
+  }
+  return foodAvoidanceActivities
+}
+
+
 
 
 /** TODO: Add test */
