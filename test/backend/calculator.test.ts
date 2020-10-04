@@ -146,7 +146,6 @@ describe("Backend scheduler", () => {
         type: "avoid-food",
       }
     ])
-
   })
 
 

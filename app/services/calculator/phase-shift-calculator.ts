@@ -101,7 +101,6 @@ export const createSleepActivities = (
 }
 
 
-/** TODO: Add test */
 export const createFoodAvoidanceActivities = (
   params: Params, sleepActivities: Activity[]
 ): Activity[] => {
