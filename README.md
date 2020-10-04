@@ -7,6 +7,7 @@ App provides guidance, but it's up to he user to decide.
 
 ## Introduction
 
+![alt text](https://github.com/mrcne/space-theine/blob/main/screens/ios1.jpg?raw=true)
 
 ## Setting up development environment
 
