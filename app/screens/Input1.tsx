@@ -103,8 +103,20 @@ export function Input1() {
           hours: Number(sleepTime),
           minutes: 0,
         },
-        normalSleepingHoursDuration: Duration.fromMillis(1000 * 60 * 60 * Number(sleepDuration)),
+        normalSleepingHoursDuration: Duration.fromObject({ hours: Number(sleepDuration) }),
         fresh: true,
+        normalBreakfastStart: {
+          hours: ((Number(sleepTime) + Number(sleepDuration)) % 24) + 1,
+          minutes: 0,
+        },
+        normalLunchStart: {
+          hours: ((Number(sleepTime) + Number(sleepDuration)) % 24) + 1 + 5,
+          minutes: 0,
+        },
+        normalDinnerStart: {
+          hours: ((Number(sleepTime) + Number(sleepDuration)) % 24) + 1 + 5 + 5,
+          minutes: 0,
+        },
       }
     }));
   }

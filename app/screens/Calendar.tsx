@@ -11,6 +11,14 @@ import { Activity } from "../services/calculator/phase-shift-calculator"
 import { compareDatesAsc } from "../utils/date"
 
 const TIME_FORMAT: 12 | 24 = 12;
+const EXTEND_DURATION: number = 30;
+
+type ExtendedActivity = Activity & {
+  endTime: DateTime,
+  extendedDuration: Duration,
+  extendedEndTime: DateTime,
+  column: number,
+}
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
@@ -38,9 +46,16 @@ const HEADER_TITLE: TextStyle = {
   letterSpacing: 1.5,
 }
 
-const EVENT_BOX_WRAPPER: ViewStyle = {
+const EVENT_BOX_WRAPPER_1: ViewStyle = {
   position: "absolute",
-  paddingLeft: 100,
+  paddingLeft: 80,
+  paddingRight: 180,
+  width: '100%',
+}
+
+const EVENT_BOX_WRAPPER_2: ViewStyle = {
+  position: "absolute",
+  paddingLeft: 200,
   paddingRight: 50,
   width: '100%',
 }
@@ -90,7 +105,7 @@ const NOW_LINE: ViewStyle = {
   borderBottomColor: 'black',
 }
 
-function EventBox({ duration, offset, activity }: { duration: number, offset: number, activity: Activity }) {
+function EventBox({ duration, offset, activity }: { duration: number, offset: number, activity: ExtendedActivity }) {
   const title = (() => {
     switch (activity.type) {
       case 'sleep': return 'Time for sleep!';
@@ -111,8 +126,16 @@ function EventBox({ duration, offset, activity }: { duration: number, offset: nu
     }
   })();
 
+  const style = (() => {
+    switch (activity.column) {
+      case 1: return EVENT_BOX_WRAPPER_1;
+      case 2: return EVENT_BOX_WRAPPER_2;
+      default: return {};
+    }
+  })();
+
   return (
-    <View style={{...EVENT_BOX_WRAPPER, top: offset }}>
+    <View style={{...style, top: offset }}>
       <View style={{...EVENT_BOX, backgroundColor: color, height: duration}}>
         <Text style={{color: 'white'}}>{title}</Text>
       </View>
@@ -150,13 +173,20 @@ export function Calendar() {
   const navigation = useNavigation()
   const [state, update] = useContext(stateContext);
 
-  console.log(DateTime.local().minus({ minutes: 5, seconds: 1 }).diffNow().normalize().minutes);
-
-  let activities = state.activities.map(a => ({ ...a, endTime: a.startTime.plus(a.duration) }));
+  let activities = activitiesWithColumns([{
+    startTime: DateTime.local().plus({ hours: 2 }),
+    duration: Duration.fromObject({ hours: 2 }),
+    type: 'sleep',
+  },{
+    startTime: DateTime.local().plus({ hours: 2, minutes: 2 }),
+    duration: Duration.fromObject({ hours: 2 }),
+    type: 'melatonin',
+  }]);//*/state.activities);
 
   let firstActivity = activities[0];
 
   let lastActivity = activities
+    .slice()
     .sort((a, b) => compareDatesAsc(a.endTime, b.endTime))[activities.length-1];
 
   if (firstActivity === undefined || lastActivity === undefined) {
@@ -191,8 +221,8 @@ export function Calendar() {
 
   const events = activities.map(a => ({
     offset: Math.round(a.startTime.diff(calendarStartTime).milliseconds/1000/60),
-    duration: Math.round(a.endTime.diff(a.startTime).milliseconds/1000/60),
-    key: a.type + String(a.startTime),
+    duration: Math.round(a.extendedEndTime.diff(a.startTime).milliseconds/1000/60),
+    key: a.type + a.column + String(a.startTime),
     activity: a,
   }))
 
@@ -227,4 +257,61 @@ function formatHour(hour: number): string {
   }
 
   return `${hour}:00`;
+}
+
+function activitiesWithColumns(activities: Activity[]): ExtendedActivity[] {
+  const activitiesOut = activities.map(a => {
+    let newDuration = extendedDuration(a.duration);
+    return {
+      ...a,
+      endTime: a.startTime.plus(a.duration),
+      extendedDuration: newDuration,
+      extendedEndTime: a.startTime.plus(newDuration),
+      column: 0,
+    };
+  });
+
+  activitiesOut.forEach((activity, i) => {
+    if (activity.column !== 0) {
+      return;
+    }
+
+    const collidingActivities = activitiesOut
+      .slice(i + 1)
+      .filter(a => a.extendedEndTime <= activity.extendedEndTime);
+
+    if (collidingActivities.length === 0) {
+      activity.column = 1;
+      return;
+    }
+
+    const longestCollidingActivity = collidingActivities.reduce((acc, current) => {
+      return current.extendedDuration > acc.extendedDuration
+        ? current
+        : acc;
+    });
+
+    // colliding are shorter, put them on column 2
+    if (longestCollidingActivity.extendedDuration < activity.extendedDuration) {
+      activity.column = 1;
+      collidingActivities.forEach(a => {
+        a.column = 2;
+      })
+    }
+
+    // colliding are longer, put them on column 1
+    // ASSUMES COLLIDING CAN NOT COLLIDE WITH EACH OTHER
+    collidingActivities.forEach(a => {
+      a.column = 1;
+    });
+    activity.column = 2;
+  });
+
+  return activitiesOut;
+}
+
+function extendedDuration(duration: Duration): Duration {
+  return duration < Duration.fromObject({ milliseconds: 1000 * 60 * EXTEND_DURATION })
+    ? Duration.fromMillis(1000 * 60 * EXTEND_DURATION)
+    : duration;
 }

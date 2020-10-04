@@ -26,6 +26,9 @@ export function Calculating() {
       timeZoneDifference: state.input.timeZoneDifference,
       normalSleepingHoursStart: state.input.normalSleepingHoursStart,
       normalSleepingHoursDuration: state.input.normalSleepingHoursDuration,
+      normalBreakfastStart: state.input.normalBreakfastStart,
+      normalLunchStart: state.input.normalLunchStart,
+      normalDinnerStart: state.input.normalDinnerStart,
     });
     update(state => ({
       ...state,
