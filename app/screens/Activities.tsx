@@ -8,6 +8,7 @@ import { theme } from "@storybook/react-native/dist/preview/components/Shared/th
 import { stateContext } from "../comp/state"
 import { DateTime, Duration } from "luxon"
 import { Activity } from "../services/calculator/phase-shift-calculator"
+import { Ionicons } from '@expo/vector-icons';
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
@@ -44,6 +45,7 @@ const ACTIVITY_BOX: ViewStyle = {
   shadowRadius: 5,
   shadowOpacity: 0.5,
   shadowOffset: { width: 5, height: 5 },
+  flexDirection: 'row',
 }
 
 const ACTIVITY_CONTAINER: ViewStyle = {
@@ -70,7 +72,6 @@ function ActivityBox({ activity }: { activity: Activity }) {
       case 'avoid-morning-light': return 'Avoid morning light!';
       case 'seek-bright-light': return 'Seek bright light!';
       case 'seek-darkness': return 'Seek darkness!';
-      case 'seek-darkness': return 'Seek darkness!';
       case 'exercise': return 'Sport time!';
       default: return 'Unknown event!';
     }
@@ -89,19 +90,39 @@ function ActivityBox({ activity }: { activity: Activity }) {
     }
   })();
 
+  const icon = (() => {
+    switch (activity.type) {
+      case 'sleep': return 'md-bed';
+      //case 'melatonin': return 'Take melatonin!';
+      case 'avoid-food': return 'ios-hand';
+      case 'avoid-bright-light': return 'ios-glasses';
+      case 'avoid-darkness': return 'md-sunny';
+      case 'avoid-morning-light': return 'ios-glasses';
+      case 'seek-bright-light': return 'md-sunny';
+      case 'seek-darkness': return 'ios-glasses';
+      case 'exercise': return 'ios-basketball';
+      default: return 'ios-radio-button-off';
+    }
+  })();
+
   let diffNow = activity.startTime.diffNow().plus({ seconds: 0, minutes: 0, hours: 0, days: 0, weeks: 0 }).normalize();
   let duration = activity.duration.plus({ seconds: 0, minutes: 0, hours: 0, days: 0, weeks: 0 }).normalize();
   let durationMessage = makeEndTimeMessage(activity.startTime, duration);
 
   return (
     <View style={{...ACTIVITY_BOX, backgroundColor: color}}>
-      <Text style={{color: 'white'}}>{title}</Text>
-      <Text style={{color: 'white'}}>{makeStartTimeMessage(diffNow)}</Text>
-      {durationMessage !== null ? (<>
-        <Text style={{color: 'white'}}></Text>
-        <Text style={{color: 'white'}}></Text>
-        <Text style={{color: 'white'}}>{durationMessage}</Text>
-      </>) : (null)}
+      <View style={{flex: 1}}>
+        <Text style={{color: 'white'}}>{title}</Text>
+        <Text style={{color: 'white'}}>{makeStartTimeMessage(diffNow)}</Text>
+        {durationMessage !== null ? (<>
+          <Text style={{color: 'white'}}></Text>
+          <Text style={{color: 'white'}}></Text>
+          <Text style={{color: 'white'}}>{durationMessage}</Text>
+        </>) : (null)}
+      </View>
+      <View style={{justifyContent: 'center'}}>
+        <Ionicons name={icon} size={32} color="white" />
+      </View>
     </View>
   )
 }
