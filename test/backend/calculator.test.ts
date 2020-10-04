@@ -4,9 +4,10 @@ import {
   createSleepActivities,
   createMelatoninIntakeActivies,
   Params,
-  Activity
+  Activity, createFoodAvoidanceActivities
 } from "../../app/services/calculator/phase-shift-calculator"
 import { DateTime, Duration } from "luxon"
+import { createFactory } from "react"
 
 describe("Backend scheduler", () => {
 
@@ -98,6 +99,54 @@ describe("Backend scheduler", () => {
         type: "sleep",
       }
     ])
+  })
+
+  it("tests createFoodAvoidanceActivities", () => {
+    const params: Params = {
+      startAt: DateTime.fromISO("2020-10-06T08:00:00"),
+      timeZoneDifference: 4, // travel east
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
+    }
+    const sleepActivities: Activity[] = [
+      {
+        startTime: DateTime.fromISO("2020-10-06T23:00:00"),
+        duration: Duration.fromISO("PT8H"),
+        type: "sleep",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-07T00:30:00"),
+        duration: Duration.fromISO("PT8H"),
+        type: "sleep",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-08T02:00:00"),
+        duration: Duration.fromISO("PT8H"),
+        type: "sleep",
+      }
+    ]
+    const foodAvoidanceActivities = createFoodAvoidanceActivities(params, sleepActivities)
+    expect(foodAvoidanceActivities).toStrictEqual([
+      {
+        startTime: DateTime.fromISO("2020-10-06T21:00:00"),
+        duration: Duration.fromISO("PT2H"),
+        type: "avoid-food",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-06T22:30:00"),
+        duration: Duration.fromISO("PT2H"),
+        type: "avoid-food",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-08T00:00:00"),
+        duration: Duration.fromISO("PT2H"),
+        type: "avoid-food",
+      }
+    ])
+
   })
 
 
