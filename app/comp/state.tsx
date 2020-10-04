@@ -19,23 +19,23 @@ export type State = {
 
 const DEFAULT_STATE: State = {
   input: {
-    timeZoneDifference: 0,
+    timeZoneDifference: 6,
     normalSleepingHoursStart: {
-      hours: 23,
-      minutes: 0,
+      hour: 23,
+      minute: 0,
     },
     normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
     normalBreakfastStart: {
-      hours: 8,
-      minutes: 0,
+      hour: 8,
+      minute: 0,
     },
     normalLunchStart: {
-      hours: 13,
-      minutes: 0,
+      hour: 13,
+      minute: 0,
     },
     normalDinnerStart: {
-      hours: 18,
-      minutes: 0,
+      hour: 18,
+      minute: 0,
     },
     fresh: false,
   },

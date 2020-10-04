@@ -89,7 +89,7 @@ export function Input1() {
   const navigation = useNavigation()
   const [state, update] = useContext(stateContext);
   const [timeZoneDifference, setTimeZoneDifference] = useState(state.input.timeZoneDifference);
-  const [sleepTime, setSleepTime] = useState(String(state.input.normalSleepingHoursStart.hours));
+  const [sleepTime, setSleepTime] = useState(String(state.input.normalSleepingHoursStart.hour));
   const [sleepDuration, setSleepDuration] = useState(String(state.input.normalSleepingHoursDuration.hours));
 
 
@@ -100,22 +100,22 @@ export function Input1() {
         ...state.input,
         timeZoneDifference,
         normalSleepingHoursStart: {
-          hours: Number(sleepTime),
-          minutes: 0,
+          hour: Number(sleepTime),
+          minute: 0,
         },
         normalSleepingHoursDuration: Duration.fromObject({ hours: Number(sleepDuration) }),
         fresh: true,
         normalBreakfastStart: {
-          hours: ((Number(sleepTime) + Number(sleepDuration)) % 24) + 1,
-          minutes: 0,
+          hour: ((Number(sleepTime) + Number(sleepDuration)) % 24) + 1,
+          minute: 0,
         },
         normalLunchStart: {
-          hours: ((Number(sleepTime) + Number(sleepDuration)) % 24) + 1 + 5,
-          minutes: 0,
+          hour: ((Number(sleepTime) + Number(sleepDuration)) % 24) + 1 + 5,
+          minute: 0,
         },
         normalDinnerStart: {
-          hours: ((Number(sleepTime) + Number(sleepDuration)) % 24) + 1 + 5 + 5,
-          minutes: 0,
+          hour: ((Number(sleepTime) + Number(sleepDuration)) % 24) + 1 + 5 + 5,
+          minute: 0,
         },
       }
     }));
