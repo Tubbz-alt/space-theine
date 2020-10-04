@@ -13,6 +13,9 @@ describe("Backend scheduler", () => {
       timeZoneDifference: -6,
       normalSleepingHoursStart: { hours: 23, minutes: 0 },
       normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+      normalBreakfastStart: { hours: 8, minutes: 0 },
+      normalLunchStart: { hours: 13, minutes: 0 },
+      normalDinnerStart: { hours: 20, minutes: 0 },
     }
     expect(calculate(params)).toHaveProperty("activities")
   })
@@ -59,6 +62,9 @@ describe("Backend scheduler", () => {
       timeZoneDifference: -6, // negative so we travel west => we have to wake up later
       normalSleepingHoursStart: { hours: 23, minutes: 0 },
       normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+      normalBreakfastStart: { hours: 8, minutes: 0 },
+      normalLunchStart: { hours: 13, minutes: 0 },
+      normalDinnerStart: { hours: 20, minutes: 0 },
     }
 
     const activities = createSleepActivities(params)
@@ -104,6 +110,9 @@ describe("Backend scheduler", () => {
       timeZoneDifference: 6, // positive so we travel east
       normalSleepingHoursStart: { hours: 23, minutes: 0 },
       normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+      normalBreakfastStart: { hours: 8, minutes: 0 },
+      normalLunchStart: { hours: 13, minutes: 0 },
+      normalDinnerStart: { hours: 20, minutes: 0 },
     }
 
     const sleep_activity: Activity = {
