@@ -8,6 +8,7 @@ import { theme } from "@storybook/react-native/dist/preview/components/Shared/th
 import { stateContext } from "../comp/state"
 import { DateTime, Duration } from "luxon"
 import { Activity } from "../services/calculator/phase-shift-calculator"
+import { compareDatesAsc } from "../utils/date"
 
 const TIME_FORMAT: 12 | 24 = 12;
 
@@ -153,14 +154,13 @@ export function Calendar() {
 
   let activities = state.activities.map(a => ({ ...a, endTime: a.startTime.plus(a.duration) }));
 
-  let firstActivity = activities
-    .sort((a, b) => a.startTime < b.startTime ? -1 : 1)[0];
+  let firstActivity = activities[0];
 
   let lastActivity = activities
-    .sort((a, b) => a.endTime < b.endTime ? -1 : 1)[activities.length-1];
+    .sort((a, b) => compareDatesAsc(a.endTime, b.endTime))[activities.length-1];
 
   if (firstActivity === undefined || lastActivity === undefined) {
-    return <Text>no activities</Text>;
+    return <Text>Calendar is empty :(</Text>;
   }
 
   let hourMarkers: {

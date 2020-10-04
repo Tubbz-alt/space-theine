@@ -1,5 +1,6 @@
 import { DateTime, Duration } from 'luxon';
 import { Activities } from '../../screens';
+import { compareDatesAsc } from '../../utils/date';
 
 /* PUBLIC AND PRIVATE CONSTS */
 
@@ -181,5 +182,6 @@ export const calculate = (params: Params): Result => {
   activities.push(...sleepActivities);
   const melatoninIntakeActivities = createMelatoninIntakeActivies(params, sleepActivities)
   activities.push(...melatoninIntakeActivities);
+  activities.sort((a, b) => compareDatesAsc(a.startTime, b.startTime));
   return { activities };
 };
