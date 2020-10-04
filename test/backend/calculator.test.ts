@@ -7,8 +7,9 @@ import {
   createBreakfastActivities,
   createLunchActivities,
   createDinnerActivities,
+  createCountermeasureActivities,
   Params,
-  Activity,
+  Activity
 } from "../../app/services/calculator/phase-shift-calculator"
 import { DateTime, Duration } from "luxon"
 import { createFactory } from "react"
@@ -239,6 +240,86 @@ describe("Backend scheduler", () => {
         startTime: DateTime.fromISO("2020-10-08T23:00:00"),
         duration: Duration.fromISO("PT1H"),
         type: "dinner",
+      }
+    ])
+  })
+
+  it("tests createCountermeasureActivities going east", () => {
+    const params: Params = {
+      startAt: DateTime.fromISO("2020-10-06T08:00:00"),
+      timeZoneDifference: 4, // travel east
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
+    }
+    const sleepActivities: Activity[] = [
+      {
+        startTime: DateTime.fromISO("2020-10-06T23:00:00"),
+        duration: Duration.fromISO("PT8H"),
+        type: "sleep",
+      }
+    ]
+    const countermeasureActivities = createCountermeasureActivities(params, sleepActivities)
+    expect(countermeasureActivities).toStrictEqual([
+      {
+        startTime: DateTime.fromISO("2020-10-06T21:00:00"),
+        duration: Duration.fromISO("PT1H"),
+        type: "avoid-bright-light",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-06T22:00:00"),
+        duration: Duration.fromISO("PT1H"),
+        type: "seek-darkness",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-07T07:00:00"),
+        duration: Duration.fromISO("PT1H"),
+        type: "seek-bright-light",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-07T08:00:00"),
+        duration: Duration.fromISO("PT4H"),
+        type: "avoid-darkness",
+      }
+    ])
+  })
+
+
+  it("tests createCountermeasureActivities going west", () => {
+    const params: Params = {
+      startAt: DateTime.fromISO("2020-10-06T08:00:00"),
+      timeZoneDifference: -4, // travel west
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
+    }
+    const sleepActivities: Activity[] = [
+      {
+        startTime: DateTime.fromISO("2020-10-06T23:00:00"),
+        duration: Duration.fromISO("PT8H"),
+        type: "sleep",
+      }
+    ]
+    const countermeasureActivities = createCountermeasureActivities(params, sleepActivities)
+    expect(countermeasureActivities).toStrictEqual([
+      {
+        startTime: DateTime.fromISO("2020-10-06T18:00:00"),
+        duration: Duration.fromISO("PT3H"),
+        type: "avoid-darkness",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-06T20:00:00"),
+        duration: Duration.fromISO("PT2H"),
+        type: "seek-bright-light",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-06T22:55:00"),
+        duration: Duration.fromISO("PT5M"),
+        type: "avoid-morning-light",
       }
     ])
   })

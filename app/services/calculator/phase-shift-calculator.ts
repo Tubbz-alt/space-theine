@@ -287,19 +287,19 @@ export const createCountermeasureActivities = (
       /** maximize evening light exposure */
       const avoidDarknessActivity: Activity = {
         startTime: sleepActivity.startTime.minus({ hours: 5 }),
-        duration: Duration.fromObject({ hours: 4 }),
+        duration: Duration.fromObject({ hours: 3 }),
         type: 'avoid-darkness'
       }
       const seekBightLightActivity: Activity = {
-        startTime: sleepActivity.startTime.minus({ hours: 1 }),
-        duration: Duration.fromObject({ hours: 1 }),
+        startTime: sleepActivity.startTime.minus({ hours: 3 }),
+        duration: Duration.fromObject({ hours: 2 }),
         type: 'seek-bright-light'
       }
-      countermeasureActivities.push(seekBightLightActivity)
       countermeasureActivities.push(avoidDarknessActivity)
+      countermeasureActivities.push(seekBightLightActivity)
       /** minimize morning light exposure */
       const avoidMorningLightActivity: Activity = {
-        startTime: sleepActivity.startTime,
+        startTime: sleepActivity.startTime.minus({ minutes: 5 }),
         duration: Duration.fromObject({ minutes: 5 }),
         type: 'avoid-morning-light'
       }
