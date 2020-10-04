@@ -83,8 +83,8 @@ const HOUR_MARKER_WRAPPER: ViewStyle = {
 const HOUR_MARKER_LINE: ViewStyle = {
   borderBottomWidth: StyleSheet.hairlineWidth,
   borderBottomColor: 'gray',
-  borderStyle: 'dashed',
-  borderLeftWidth: 150,
+  borderStyle: 'solid',
+  borderLeftWidth: 250,
   borderLeftColor: 'transparent',
   borderRightWidth: 50,
   borderRightColor: 'transparent',
