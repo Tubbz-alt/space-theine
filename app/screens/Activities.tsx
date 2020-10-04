@@ -109,8 +109,8 @@ export function Activities() {
       <Header
         style={HEADER}
         titleStyle={HEADER_TITLE}
-        leftIcon="back"
-        rightIcon="back"
+        leftIcon="ios-arrow-back"
+        rightIcon="md-calendar"
         headerText="SPACE THEINE"
         onLeftPress={() => navigation.navigate('input1')}
         onRightPress={() => navigation.navigate('calendar')}
