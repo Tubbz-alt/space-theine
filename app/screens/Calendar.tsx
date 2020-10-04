@@ -1,18 +1,21 @@
 import { useNavigation } from "@react-navigation/native"
 import React, { useContext, useEffect, useReducer, useRef, useState } from "react"
-import { View, Image, ViewStyle, TextStyle, ImageStyle, SafeAreaView } from "react-native"
+import { View, Image, ViewStyle, TextStyle, ImageStyle, SafeAreaView, StyleSheet } from "react-native"
 import { Button, Header, Screen, Text, TextField, Wallpaper } from "../components"
 import { color, spacing, typography } from "../theme"
-import { Input, Slider } from 'react-native-elements';
+import { colors, Input, Slider } from 'react-native-elements';
 import { theme } from "@storybook/react-native/dist/preview/components/Shared/theme"
 import { stateContext } from "../comp/state"
 import { DateTime, Duration } from "luxon"
 import { Activity } from "../services/calculator/phase-shift-calculator"
+import { compareDatesAsc } from "../utils/date"
+
+const TIME_FORMAT: 12 | 24 = 12;
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
-  backgroundColor: color.transparent,
-  paddingHorizontal: spacing[4],
+  // backgroundColor: color.transparent,
+  // paddingHorizontal: spacing[4],
 }
 const TEXT: TextStyle = {
   color: color.palette.white,
@@ -35,31 +38,59 @@ const HEADER_TITLE: TextStyle = {
   letterSpacing: 1.5,
 }
 
-const ACTIVITY_BOX: ViewStyle = {
-  padding: 20,
-  paddingBottom: 20,
-  marginVertical: 6,
+const EVENT_BOX_WRAPPER: ViewStyle = {
+  position: "absolute",
+  paddingLeft: 100,
+  paddingRight: 50,
+  width: '100%',
+}
+
+const EVENT_BOX: ViewStyle = {
+  width: '100%',
+  padding: 5,
   borderRadius: 5,
-  shadowColor: "#000000",
-  shadowRadius: 5,
-  shadowOpacity: 0.5,
-  shadowOffset: { width: 5, height: 5 },
 }
 
-const ACTIVITY_CONTAINER: ViewStyle = {
+const CALENDAR_CONTAINER: ViewStyle = {
   ...CONTAINER,
-  paddingVertical: 12,
+  width: '100%',
+  position: 'relative',
+  // paddingVertical: 12,
 }
 
-function ActivityBox({ activity }: { activity: Activity }) {
-  const ref = useRef<any>(0);
-  const [, forceUpdate] = useReducer(n => n+1, 0);
+const HOUR_MARKER_WRAPPER: ViewStyle = {
+  display: 'flex',
+  position: 'absolute',
+  width: '100%',
+}
 
-  useEffect(() => {
-      ref.current = setInterval(forceUpdate, 1000 * 60);
-      return () => clearInterval(ref.current);
-  }, []);
+const HOUR_MARKER_LINE: ViewStyle = {
+  borderBottomWidth: StyleSheet.hairlineWidth,
+  borderBottomColor: 'gray',
+  borderStyle: 'dashed',
+  borderLeftWidth: 150,
+  borderLeftColor: 'transparent',
+  borderRightWidth: 50,
+  borderRightColor: 'transparent',
+}
 
+const HOUR_MARKER_TEXT: TextStyle = {
+  margin: -10,
+  width: 70,
+  textAlign: 'right',
+}
+
+const NOW_LINE_WRAPPER: ViewStyle = {
+  position: 'absolute',
+  width: '100%',
+}
+
+const NOW_LINE: ViewStyle = {
+  borderBottomWidth: 2,
+  borderBottomColor: 'black',
+}
+
+function EventBox({ duration, offset, activity }: { duration: number, offset: number, activity: Activity }) {
   const title = (() => {
     switch (activity.type) {
       case 'sleep': return 'Time for sleep!';
@@ -81,10 +112,38 @@ function ActivityBox({ activity }: { activity: Activity }) {
   })();
 
   return (
-    <View style={{...ACTIVITY_BOX, backgroundColor: color}}>
-      <Text style={{color: 'white'}}>{title}</Text>
+    <View style={{...EVENT_BOX_WRAPPER, top: offset }}>
+      <View style={{...EVENT_BOX, backgroundColor: color, height: duration}}>
+        <Text style={{color: 'white'}}>{title}</Text>
+      </View>
     </View>
   )
+}
+
+function HourMarker({ hour, offset }: { hour: number, offset: number }) {
+  return (
+    <View style={{...HOUR_MARKER_WRAPPER, top: offset}}>
+      <View style={HOUR_MARKER_LINE} />
+      <Text style={HOUR_MARKER_TEXT}>{formatHour(hour)}</Text>
+    </View>
+  )
+}
+
+function NowLine({ startTime }: { startTime: DateTime }) {
+  const ref = useRef<any>(0);
+  const [, forceUpdate] = useReducer(n => n+1, 0);
+
+  useEffect(() => {
+      ref.current = setInterval(forceUpdate, 1000 * 60);
+      return () => clearInterval(ref.current);
+  }, []);
+
+  let offset = Math.round(DateTime.local().diff(startTime).milliseconds/1000/60);
+  return (
+    <View style={{...NOW_LINE_WRAPPER, top: offset}}>
+      <View style={NOW_LINE} ></View>
+    </View>
+  );
 }
 
 export function Calendar() {
@@ -92,6 +151,52 @@ export function Calendar() {
   const [state, update] = useContext(stateContext);
 
   console.log(DateTime.local().minus({ minutes: 5, seconds: 1 }).diffNow().normalize().minutes);
+
+  let activities = state.activities.map(a => ({ ...a, endTime: a.startTime.plus(a.duration) }));
+
+  let firstActivity = activities[0];
+
+  let lastActivity = activities
+    .sort((a, b) => compareDatesAsc(a.endTime, b.endTime))[activities.length-1];
+
+  if (firstActivity === undefined || lastActivity === undefined) {
+    return <Text>Calendar is empty :(</Text>;
+  }
+
+  let hourMarkers: {
+    key: string,
+    hour: number,
+    offset: number,
+  }[] = [];
+
+  let now = DateTime.local();
+
+   // if first activity is later than now
+  let calendarStartTime = firstActivity.startTime.diff(now).milliseconds >= 0
+    ? now.startOf('hour').minus({ minutes: 30 })
+    : firstActivity.startTime.startOf('hour').minus({ minutes: 30 });
+
+  let calendarEndTime = lastActivity.endTime.endOf('hour').plus({ minutes: 30 });
+
+  for (let time = calendarStartTime.plus({ minutes: 30 });
+      calendarEndTime.diff(time).milliseconds >= 0;
+      time = time.plus({ hours: 1 })) {
+
+    hourMarkers.push({
+      key: String(time),
+      hour: time. hour,
+      offset: Math.round(time.diff(calendarStartTime).milliseconds/1000/60),
+    });
+  }
+
+  const events = activities.map(a => ({
+    offset: Math.round(a.startTime.diff(calendarStartTime).milliseconds/1000/60),
+    duration: Math.round(a.endTime.diff(a.startTime).milliseconds/1000/60),
+    key: a.type + String(a.startTime),
+    activity: a,
+  }))
+
+  let calendarHeight = Math.round(calendarEndTime.diff(calendarStartTime).milliseconds/1000/60);
 
   return (
     <View style={FULL}>
@@ -103,12 +208,23 @@ export function Calendar() {
         headerText="SPACE THEINE"
         onLeftPress={() => navigation.navigate('activities')}
       />
-      <Screen style={ACTIVITY_CONTAINER} preset="scroll" backgroundColor={color.transparent}>
-        {state.activities.map((a, i) => (
-          <ActivityBox activity={a} key={i} />
+      <Screen style={{...CALENDAR_CONTAINER, height: calendarHeight}} preset="scroll" backgroundColor={color.transparent}>
+        {hourMarkers.map(({key, hour, offset}) => (
+          <HourMarker key={key} hour={hour} offset={offset} />
         ))}
-        <Text style={{color: 'black'}}>DEBUG: {JSON.stringify(state)}</Text>
+        {events.map(({offset, duration, key, activity}) => (
+          <EventBox key={key} activity={activity} offset={offset} duration={duration} />
+        ))}
+        <NowLine startTime={calendarStartTime} />
       </Screen>
     </View>
   )
+}
+
+function formatHour(hour: number): string {
+  if (TIME_FORMAT === 12) {
+    return `${(hour % 12) || 12} ${hour == 0 || hour > 12 ? 'PM' : 'AM'}`;
+  }
+
+  return `${hour}:00`;
 }
