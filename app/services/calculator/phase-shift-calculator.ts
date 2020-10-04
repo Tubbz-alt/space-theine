@@ -5,8 +5,16 @@ import { createExerciseActivities } from './activities/exercise';
 
 /* PUBLIC AND PRIVATE CONSTS */
 
-const MAX_DAILY_TIME_SHIFT_NEGATIVE: Duration = Duration.fromObject({ hours: 1 });
-const MAX_DAILY_TIME_SHIFT_POSITIVE: Duration = Duration.fromObject({ hours: 1, minutes: 30 });
+/**
+ * Maximum daily time shift (in hours)
+ *
+ * We don't use words East/West in variable names, we just focus on numeric change
+ *
+ * based on:
+ * @TODO
+ */
+export const MAX_DAILY_TIME_SHIFT_POSITIVE: Duration = Duration.fromObject({ hours: 1 }); // positive number = travel east
+export const MAX_DAILY_TIME_SHIFT_NEGATIVE: Duration = Duration.fromObject({ hours: 1, minutes: 30 }); // negative number = travel west
 
 /* PUBLIC AND PRIVATE TYPES */
 
@@ -65,43 +73,49 @@ export const getNumOfReqShiftDays = (params: Params): number => {
   }
 };
 
+const getCurrentPossibleTimeShift = (params: Params): number => {
+  return params.timeZoneDifference > 0 ?
+  MAX_DAILY_TIME_SHIFT_NEGATIVE.as('hours') : MAX_DAILY_TIME_SHIFT_POSITIVE.as('hours');
+};
+
 export const createSleepActivities = (params: Params): Activity[] => {
-  let sleepActivities = <Activity[]>[];
-  const startTime = params.startAt || DateTime.local();
-  const numOfReqShiftDays: number = getNumOfReqShiftDays(params);
-  let dailyTimeShift = startTime.set(params.normalSleepingHoursStart);
-  if (params.timeZoneDifference > 0) {
-    /** Eastwards */
-    for (var day = 0; day < numOfReqShiftDays; day++) {
-      const sleepingStart = startTime.plus({ day: day }).set({
-        hour: dailyTimeShift.get('hour'),
-        minute: dailyTimeShift.get('minute'),
-      });
-      const sleepActivity: Activity = {
-        startTime: sleepingStart,
-        duration: params.normalSleepingHoursDuration,
-        type: 'sleep',
-      };
-      sleepActivities.push(sleepActivity);
-      dailyTimeShift = dailyTimeShift.plus(MAX_DAILY_TIME_SHIFT_POSITIVE);
-    }
-  } else {
-    /** Westwards */
-    for (var day = 0; day < numOfReqShiftDays; day++) {
-      const sleepingStart = startTime.plus({ day: day }).set({
-        hour: dailyTimeShift.get('hour'),
-        minute: dailyTimeShift.get('minute'),
-      });
-      const sleepActivity: Activity = {
-        startTime: sleepingStart,
-        duration: params.normalSleepingHoursDuration,
-        type: 'sleep',
-      };
-      sleepActivities.push(sleepActivity);
-      dailyTimeShift = dailyTimeShift.minus(MAX_DAILY_TIME_SHIFT_NEGATIVE);
-    }
+  const currentDailyTimeShift = getCurrentPossibleTimeShift(params);
+  // if time shift is positive it means we travel west => so we should wake up earlier => so we dailyShift should be negative
+  // i'M So lOgiCaL
+  const currentDailyTimeShiftWithSign = params.timeZoneDifference > 0
+    ? -currentDailyTimeShift
+    : currentDailyTimeShift;
+
+  let startAt = params.startAt;
+  if (startAt === undefined) {
+    startAt = DateTime.local();
   }
-  return sleepActivities;
+  const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
+
+  let timeshiftLeft = Math.abs(params.timeZoneDifference);
+  let dayNumber = 0;
+  while (timeshiftLeft > 0) {
+    let activityStartTime = DateTime.fromObject({
+      ...startAt.toObject(),
+      ...params.normalSleepingHoursStart,
+      second: 0,
+      millisecond: 0,
+    });
+    activityStartTime = activityStartTime.plus({
+      days: dayNumber,
+      hours: currentDailyTimeShiftWithSign * (dayNumber + 1),
+    });
+
+    let activity: Activity = {
+      type: 'sleep',
+      startTime: activityStartTime,
+      duration: params.normalSleepingHoursDuration,
+    };
+    activities.push(activity);
+    timeshiftLeft -= currentDailyTimeShift;
+    dayNumber++;
+  }
+  return activities;
 };
 
 export const createFoodAvoidanceActivities = (
