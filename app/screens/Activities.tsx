@@ -9,6 +9,7 @@ import { stateContext } from "../comp/state"
 import { DateTime, Duration } from "luxon"
 import { Activity } from "../services/calculator/phase-shift-calculator"
 import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
@@ -66,13 +67,16 @@ function ActivityBox({ activity }: { activity: Activity }) {
     switch (activity.type) {
       case 'sleep': return 'Time for sleep!';
       case 'melatonin': return 'Take melatonin!';
-      case 'avoid-food': return 'Avoid food!';
       case 'avoid-bright-light': return 'Avoid bright light!';
       case 'avoid-darkness': return 'Avoid darkness!';
       case 'avoid-morning-light': return 'Avoid morning light!';
       case 'seek-bright-light': return 'Seek bright light!';
       case 'seek-darkness': return 'Seek darkness!';
       case 'exercise': return 'Sport time!';
+      case 'avoid-food': return 'Avoid food!';
+      case 'breakfast': return 'Breakfast';
+      case 'dinner': return 'Dinner';
+      case 'lunch': return 'Lunch';
       default: return 'Unknown event!';
     }
   })();
@@ -91,17 +95,25 @@ function ActivityBox({ activity }: { activity: Activity }) {
   })();
 
   const icon = (() => {
+    const props = {
+      size: 32,
+      color: 'white',
+    };
+
     switch (activity.type) {
-      case 'sleep': return 'md-bed';
-      //case 'melatonin': return 'Take melatonin!';
-      case 'avoid-food': return 'ios-hand';
-      case 'avoid-bright-light': return 'ios-glasses';
-      case 'avoid-darkness': return 'md-sunny';
-      case 'avoid-morning-light': return 'ios-glasses';
-      case 'seek-bright-light': return 'md-sunny';
-      case 'seek-darkness': return 'ios-glasses';
-      case 'exercise': return 'ios-basketball';
-      default: return 'ios-radio-button-off';
+      case 'sleep': return <Ionicons name="md-bed" {...props} />;
+      case 'melatonin': return <FontAwesome5 name="pills" {...props} />;
+      case 'avoid-food': return <Ionicons name="ios-hand" {...props} />;
+      case 'avoid-bright-light': return <Ionicons name="ios-glasses" {...props} />;
+      case 'avoid-darkness': return <Ionicons name="md-sunny" {...props} />;
+      case 'avoid-morning-light': return <Ionicons name="ios-glasses" {...props} />;
+      case 'seek-bright-light': return <Ionicons name="md-sunny" {...props} />;
+      case 'seek-darkness': return <Ionicons name="ios-glasses" {...props} />;
+      case 'exercise': return <Ionicons name="ios-basketball" {...props} />;
+      case 'breakfast': return <Ionicons name="md-pizza" {...props} />;
+      case 'dinner': return <Ionicons name="md-pizza" {...props} />;
+      case 'lunch': return <Ionicons name="md-pizza" {...props} />;
+      default: return <Ionicons name="ios-radio-button-off" {...props} />;
     }
   })();
 
@@ -113,15 +125,21 @@ function ActivityBox({ activity }: { activity: Activity }) {
     <View style={{...ACTIVITY_BOX, backgroundColor: color}}>
       <View style={{flex: 1}}>
         <Text style={{color: 'white'}}>{title}</Text>
-        <Text style={{color: 'white'}}>{makeStartTimeMessage(diffNow)}</Text>
+        <Text style={{color: 'white'}}>
+          <FontAwesome5 name="clock" size={14} color="white" />&nbsp;
+          {makeStartTimeMessage(diffNow)}
+        </Text>
         {durationMessage !== null ? (<>
           <Text style={{color: 'white'}}></Text>
           <Text style={{color: 'white'}}></Text>
-          <Text style={{color: 'white'}}>{durationMessage}</Text>
+          <Text style={{color: 'white'}}>
+            <FontAwesome5 name="ruler" size={11} color="white" />&nbsp;
+            {durationMessage}
+          </Text>
         </>) : (null)}
       </View>
       <View style={{justifyContent: 'center'}}>
-        <Ionicons name={icon} size={32} color="white" />
+        {icon}
       </View>
     </View>
   )
