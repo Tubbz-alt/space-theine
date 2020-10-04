@@ -182,6 +182,36 @@ describe("Backend scheduler", () => {
     ])
   })
 
+  it("tests createLunchActivities", () => {
+    const params: Params = {
+      startAt: DateTime.fromISO("2020-10-06T08:00:00"),
+      timeZoneDifference: 4, // travel east
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
+    }
+    const lunchActivities = createLunchActivities(params)
+    expect(lunchActivities).toStrictEqual([
+      {
+        startTime: DateTime.fromISO("2020-10-06T13:00:00"),
+        duration: Duration.fromISO("PT1H"),
+        type: "lunch",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-07T14:30:00"),
+        duration: Duration.fromISO("PT1H"),
+        type: "lunch",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-08T16:00:00"),
+        duration: Duration.fromISO("PT1H"),
+        type: "lunch",
+      }
+    ])
+  })
+
 
   it("should should not crush when provided proper parameters", () => {
     const params: Params = {
