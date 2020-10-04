@@ -342,6 +342,15 @@ export const calculate = (params: Params): Result => {
   const sleepActivities = createSleepActivities(params);
   activities.push(...sleepActivities);
 
+  const breakfastActivities = createBreakfastActivities(params);
+  activities.push(...breakfastActivities)
+
+  const lunchActivities = createLunchActivities(params);
+  activities.push(...lunchActivities)
+
+  const dinnerActivities = createDinnerActivities(params);
+  activities.push(...dinnerActivities)
+
   const foodAvoidanceActivities = createFoodAvoidanceActivities(params, sleepActivities);
   activities.push(...foodAvoidanceActivities);
 
