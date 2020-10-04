@@ -27,7 +27,7 @@ export type Params = {
 export type Activity = {
   startTime: DateTime,
   duration: Duration,
-  type: 'sleep' | 'melatonin', // @TODO: add more types
+  type: 'sleep' | 'melatonin' | 'avoid-bright-light' | 'seek-darkness' | 'seek-bright-light' | 'avoid-darkness' | 'avoid-morning-light',
 }
 
 export type Result = {
@@ -55,7 +55,7 @@ export const createSleepActivities = (params: Params): Activity[] => {
   const currentDailyTimeShift = getCurrentPossibleTimeShift(params);
   // if time shift is positive it means we travel west => so we should wake up ealier => so we dailyShift should be negative
   // i'M So lOgiCaL
-  const currentDailyTimeShiftWithSign = timeshiftDirectionPositive? -currentDailyTimeShift : currentDailyTimeShift;
+  const currentDailyTimeShiftWithSign = timeshiftDirectionPositive ? -currentDailyTimeShift : currentDailyTimeShift;
 
   let startAt = params.startAt;
   if (startAt === undefined) {
@@ -74,7 +74,7 @@ export const createSleepActivities = (params: Params): Activity[] => {
       second: 0,
       millisecond: 0,
     });
-    activityStartTime = activityStartTime.plus({days: dayNumber, hours: currentDailyTimeShiftWithSign*(dayNumber+1)});
+    activityStartTime = activityStartTime.plus({ days: dayNumber, hours: currentDailyTimeShiftWithSign * (dayNumber + 1) });
 
     let activity: Activity = {
       type: 'sleep',
@@ -89,6 +89,68 @@ export const createSleepActivities = (params: Params): Activity[] => {
   return activities;
 };
 
+
+/** TODO: Add test */
+export const createCountermeasureActivities = (
+  params: Params, sleepActivities: Activity[]
+): Activity[] => {
+  let countermeasureActivities = <Activity[]>[]
+  if (params.timeZoneDifference > 0) { /** Eastwards */
+    for (const sleepActivity of sleepActivities) {
+      /** minimize evening light exposure */
+      const avoidBrightLightActivity: Activity = {
+        startTime: sleepActivity.startTime.minus({ hours: 2 }),
+        duration: Duration.fromObject({ hours: 1 }),
+        type: 'avoid-bright-light'
+      }
+      const seekDarknessActivity: Activity = {
+        startTime: sleepActivity.startTime.minus({ hours: 1 }),
+        duration: Duration.fromObject({ hours: 1 }),
+        type: 'seek-darkness'
+      }
+      countermeasureActivities.push(avoidBrightLightActivity)
+      countermeasureActivities.push(seekDarknessActivity)
+      /** maximize morning light exposure */
+      const seekBightLightActivity: Activity = {
+        startTime: sleepActivity.startTime.plus(sleepActivity.duration),
+        duration: Duration.fromObject({ hours: 1 }),
+        type: 'seek-bright-light'
+      }
+      const avoidDarknessActivity: Activity = {
+        startTime: sleepActivity.startTime.plus(sleepActivity.duration.plus({ hours: 1 })),
+        duration: Duration.fromObject({ hours: 4 }),
+        type: 'avoid-darkness'
+      }
+      countermeasureActivities.push(seekBightLightActivity)
+      countermeasureActivities.push(avoidDarknessActivity)
+    }
+  } else { /** Westwards */
+    for (const sleepActivity of sleepActivities) {
+      /** maximize evening light exposure */
+      const avoidDarknessActivity: Activity = {
+        startTime: sleepActivity.startTime.minus({ hours: 5 }),
+        duration: Duration.fromObject({ hours: 4 }),
+        type: 'avoid-darkness'
+      }
+      const seekBightLightActivity: Activity = {
+        startTime: sleepActivity.startTime.minus({ hours: 1 }),
+        duration: Duration.fromObject({ hours: 1 }),
+        type: 'seek-bright-light'
+      }
+      countermeasureActivities.push(seekBightLightActivity)
+      countermeasureActivities.push(avoidDarknessActivity)
+      /** minimize morning light exposure */
+      const avoidMorningLightActivity: Activity = {
+        startTime: sleepActivity.startTime,
+        duration: Duration.fromObject({ minutes: 5 }),
+        type: 'avoid-morning-light'
+      }
+      countermeasureActivities.push(avoidMorningLightActivity)
+    }
+
+  }
+  return countermeasureActivities
+}
 
 
 export const createMelatoninIntakeActivies = (
