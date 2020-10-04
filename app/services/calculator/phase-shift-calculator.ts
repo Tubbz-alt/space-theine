@@ -35,7 +35,10 @@ export type Activity = {
   'seek-bright-light' |
   'avoid-darkness' |
   'avoid-morning-light' |
-  'avoid-food',
+  'avoid-food' |
+  'breakfast' |
+  'lunch' |
+  'dinner',
 }
 
 export type Result = {
@@ -132,7 +135,7 @@ export const createBreakfastActivities = (
       const breakfastActivity: Activity = {
         startTime: breakfastStart,
         duration: Duration.fromObject({ minute: 30 }),
-        type: 'sleep'
+        type: 'breakfast'
       }
       breakfastActivities.push(breakfastActivity)
       dailyTimeShift = dailyTimeShift.plus(MAX_DAILY_TIME_SHIFT_POSITIVE)
@@ -146,7 +149,7 @@ export const createBreakfastActivities = (
       const breakfastActivity: Activity = {
         startTime: breakfastStart,
         duration: Duration.fromObject({ minute: 30 }),
-        type: 'sleep'
+        type: 'breakfast'
       }
       breakfastActivities.push(breakfastActivity)
       dailyTimeShift = dailyTimeShift.minus(MAX_DAILY_TIME_SHIFT_NEGATIVE)
@@ -175,7 +178,7 @@ export const createLunchActivities = (
       const lunchActivity: Activity = {
         startTime: lunchStart,
         duration: Duration.fromObject({ hour: 1 }),
-        type: 'sleep'
+        type: 'lunch'
       }
       lunchActivities.push(lunchActivity)
       dailyTimeShift = dailyTimeShift.plus(MAX_DAILY_TIME_SHIFT_POSITIVE)
@@ -189,7 +192,7 @@ export const createLunchActivities = (
       const lunchActivity: Activity = {
         startTime: lunchStart,
         duration: Duration.fromObject({ hour: 1 }),
-        type: 'sleep'
+        type: 'lunch'
       }
       lunchActivities.push(lunchActivity)
       dailyTimeShift = dailyTimeShift.minus(MAX_DAILY_TIME_SHIFT_NEGATIVE)
@@ -220,7 +223,7 @@ export const createDinnerActivities = (
       const dinnerActivity: Activity = {
         startTime: dinnerStart,
         duration: Duration.fromObject({ hour: 1 }),
-        type: 'sleep'
+        type: 'dinner'
       }
       dinnerActivities.push(dinnerActivity)
       dailyTimeShift = dailyTimeShift.plus(MAX_DAILY_TIME_SHIFT_POSITIVE)
@@ -234,7 +237,7 @@ export const createDinnerActivities = (
       const dinnerActivity: Activity = {
         startTime: dinnerStart,
         duration: Duration.fromObject({ hour: 1 }),
-        type: 'sleep'
+        type: 'dinner'
       }
       dinnerActivities.push(dinnerActivity)
       dailyTimeShift = dailyTimeShift.minus(MAX_DAILY_TIME_SHIFT_NEGATIVE)
