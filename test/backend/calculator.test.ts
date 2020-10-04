@@ -3,8 +3,12 @@ import {
   getNumOfReqShiftDays,
   createSleepActivities,
   createMelatoninIntakeActivies,
+  createFoodAvoidanceActivities,
+  createBreakfastActivities,
+  createLunchActivities,
+  createDinnerActivities,
   Params,
-  Activity, createFoodAvoidanceActivities
+  Activity,
 } from "../../app/services/calculator/phase-shift-calculator"
 import { DateTime, Duration } from "luxon"
 import { createFactory } from "react"
@@ -144,6 +148,36 @@ describe("Backend scheduler", () => {
         startTime: DateTime.fromISO("2020-10-08T00:00:00"),
         duration: Duration.fromISO("PT2H"),
         type: "avoid-food",
+      }
+    ])
+  })
+
+  it("tests createBreakfastActivities", () => {
+    const params: Params = {
+      startAt: DateTime.fromISO("2020-10-06T08:00:00"),
+      timeZoneDifference: 4, // travel east
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
+    }
+    const breakfastActivities = createBreakfastActivities(params)
+    expect(breakfastActivities).toStrictEqual([
+      {
+        startTime: DateTime.fromISO("2020-10-06T08:00:00"),
+        duration: Duration.fromISO("PT30M"),
+        type: "breakfast",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-07T09:30:00"),
+        duration: Duration.fromISO("PT30M"),
+        type: "breakfast",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-08T11:00:00"),
+        duration: Duration.fromISO("PT30M"),
+        type: "breakfast",
       }
     ])
   })
