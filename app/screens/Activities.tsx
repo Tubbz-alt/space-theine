@@ -64,7 +64,7 @@ function ActivityBox({ activity }: { activity: Activity }) {
     switch (activity.type) {
       case 'sleep': return 'Time for sleep!';
       case 'melatonin': return 'Take melatonin!';
-      default: return 'Scratch your ass';
+      default: return 'Unknown event!';
     }
   })();
 
