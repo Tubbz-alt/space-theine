@@ -205,10 +205,20 @@ export const createMelatoninIntakeActivies = (
 
 export const calculate = (params: Params): Result => {
   const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
+
   const sleepActivities = createSleepActivities(params);
   activities.push(...sleepActivities);
+
+  const foodAvoidanceActivities = createFoodAvoidanceActivities(params, sleepActivities);
+  activities.push(...foodAvoidanceActivities);
+
+  const countermeasureActivities = createCountermeasureActivities(params, sleepActivities);
+  activities.push(...countermeasureActivities);
+
   const melatoninIntakeActivities = createMelatoninIntakeActivies(params, sleepActivities)
   activities.push(...melatoninIntakeActivities);
+
   activities.sort((a, b) => compareDatesAsc(a.startTime, b.startTime));
+
   return { activities };
 };
