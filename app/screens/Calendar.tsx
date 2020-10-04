@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native"
 import React, { useContext, useEffect, useReducer, useRef, useState } from "react"
-import { View, Image, ViewStyle, TextStyle, ImageStyle, SafeAreaView, StyleSheet } from "react-native"
+import { View, Image, ViewStyle, TextStyle, ImageStyle, SafeAreaView, StyleSheet, useWindowDimensions } from "react-native"
 import { Button, Header, Screen, Text, TextField, Wallpaper } from "../components"
 import { color, spacing, typography } from "../theme"
 import { colors, Input, Slider } from 'react-native-elements';
@@ -9,6 +9,7 @@ import { stateContext } from "../comp/state"
 import { DateTime, Duration } from "luxon"
 import { Activity } from "../services/calculator/phase-shift-calculator"
 import { compareDatesAsc } from "../utils/date"
+import { useScreens } from "react-native-screens"
 
 const TIME_FORMAT: 12 | 24 = 12;
 const EXTEND_DURATION: number = 30;
@@ -46,18 +47,15 @@ const HEADER_TITLE: TextStyle = {
   letterSpacing: 1.5,
 }
 
+
 const EVENT_BOX_WRAPPER_1: ViewStyle = {
   position: "absolute",
-  paddingLeft: 80,
-  paddingRight: 180,
-  width: '100%',
+  left: 80,
 }
 
 const EVENT_BOX_WRAPPER_2: ViewStyle = {
   position: "absolute",
-  paddingLeft: 200,
-  paddingRight: 50,
-  width: '100%',
+  right: 30
 }
 
 const EVENT_BOX: ViewStyle = {
@@ -106,6 +104,8 @@ const NOW_LINE: ViewStyle = {
 }
 
 function EventBox({ duration, offset, activity }: { duration: number, offset: number, activity: ExtendedActivity }) {
+  let dimensions = useWindowDimensions();
+
   const title = (() => {
     switch (activity.type) {
       case 'sleep': return 'Time for sleep!';
@@ -135,7 +135,7 @@ function EventBox({ duration, offset, activity }: { duration: number, offset: nu
   })();
 
   return (
-    <View style={{...style, top: offset }}>
+    <View style={{...style, width: (dimensions.width - 110) / 2, top: offset }}>
       <View style={{...EVENT_BOX, backgroundColor: color, height: duration}}>
         <Text style={{color: 'white'}}>{title}</Text>
       </View>
@@ -173,15 +173,7 @@ export function Calendar() {
   const navigation = useNavigation()
   const [state, update] = useContext(stateContext);
 
-  let activities = activitiesWithColumns([{
-    startTime: DateTime.local().plus({ hours: 2 }),
-    duration: Duration.fromObject({ hours: 2 }),
-    type: 'sleep',
-  },{
-    startTime: DateTime.local().plus({ hours: 2, minutes: 2 }),
-    duration: Duration.fromObject({ hours: 2 }),
-    type: 'melatonin',
-  }]);//*/state.activities);
+  let activities = activitiesWithColumns(state.activities);
 
   let firstActivity = activities[0];
 
@@ -278,7 +270,7 @@ function activitiesWithColumns(activities: Activity[]): ExtendedActivity[] {
 
     const collidingActivities = activitiesOut
       .slice(i + 1)
-      .filter(a => a.extendedEndTime <= activity.extendedEndTime);
+      .filter(a => a.startTime < activity.extendedEndTime);
 
     if (collidingActivities.length === 0) {
       activity.column = 1;
@@ -291,12 +283,13 @@ function activitiesWithColumns(activities: Activity[]): ExtendedActivity[] {
         : acc;
     });
 
-    // colliding are shorter, put them on column 2
-    if (longestCollidingActivity.extendedDuration < activity.extendedDuration) {
+    // activity is longer
+    if (activity.extendedDuration >= longestCollidingActivity.extendedDuration) {
       activity.column = 1;
       collidingActivities.forEach(a => {
         a.column = 2;
-      })
+      });
+      return;
     }
 
     // colliding are longer, put them on column 1
