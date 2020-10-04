@@ -137,7 +137,7 @@ function NowLine({ startTime }: { startTime: DateTime }) {
       return () => clearInterval(ref.current);
   }, []);
 
-  let offset = Math.round(startTime.diffNow().milliseconds/1000/60);
+  let offset = Math.round(DateTime.local().diff(startTime).milliseconds/1000/60);
   return (
     <View style={{...NOW_LINE_WRAPPER, top: offset}}>
       <View style={NOW_LINE} ></View>
@@ -169,16 +169,22 @@ export function Calendar() {
     offset: number,
   }[] = [];
 
-  let calendarStartTime = firstActivity.startTime.startOf('hour').minus({ minutes: 30 });
+  let now = DateTime.local();
+
+   // if first activity is later than now
+  let calendarStartTime = firstActivity.startTime.diff(now).milliseconds >= 0
+    ? now.startOf('hour').minus({ minutes: 30 })
+    : firstActivity.startTime.startOf('hour').minus({ minutes: 30 });
+
   let calendarEndTime = lastActivity.endTime.endOf('hour').plus({ minutes: 30 });
 
-  for (let time = firstActivity.startTime.startOf("hour");
+  for (let time = calendarStartTime.plus({ minutes: 30 });
       calendarEndTime.diff(time).milliseconds >= 0;
       time = time.plus({ hours: 1 })) {
 
     hourMarkers.push({
       key: String(time),
-      hour: time.hour,
+      hour: time. hour,
       offset: Math.round(time.diff(calendarStartTime).milliseconds/1000/60),
     });
   }
