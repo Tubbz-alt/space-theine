@@ -1,13 +1,46 @@
 import {
   calculate,
+  createShift,
   createSleepActivities,
   createMelatoninIntakeActivies,
   Params,
-  Activity
+  Activity,
+  Shift
 } from "../../app/services/calculator/phase-shift-calculator"
 import { DateTime, Duration } from "luxon"
 
 describe("Backend scheduler", () => {
+
+  it("tests createShift", () => {
+    const params_west: Params = {
+      timeZoneDifference: -4,
+      normalSleepingHoursStart: { hours: 23, minutes: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+      normalBreakfastStart: { hours: 8, minutes: 0 },
+      normalLunchStart: { hours: 13, minutes: 0 },
+      normalDinnerStart: { hours: 20, minutes: 0 },
+    }
+    const shift_west: Shift = createShift(params_west)
+    expect(shift_west).toStrictEqual({
+      byNumOfDays: 4,
+      byTime: Duration.fromISO("PT1H")
+    })
+    const params_east: Params = {
+      timeZoneDifference: 4,
+      normalSleepingHoursStart: { hours: 23, minutes: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+      normalBreakfastStart: { hours: 8, minutes: 0 },
+      normalLunchStart: { hours: 13, minutes: 0 },
+      normalDinnerStart: { hours: 20, minutes: 0 },
+    }
+    const shift_east: Shift = createShift(params_east)
+    expect(shift_east).toStrictEqual({
+      byNumOfDays: 3,
+      byTime: Duration.fromISO("PT1H30M")
+    })
+  })
+
+
   it("should should not crush when provided proper parameters", () => {
     const params: Params = {
       timeZoneDifference: -6,
@@ -26,6 +59,9 @@ describe("Backend scheduler", () => {
       timeZoneDifference: 6, // positive so we travel west => we have to wake up earlier
       normalSleepingHoursStart: { hours: 23, minutes: 0 },
       normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+      normalBreakfastStart: { hours: 8, minutes: 0 },
+      normalLunchStart: { hours: 13, minutes: 0 },
+      normalDinnerStart: { hours: 20, minutes: 0 },
     }
 
     const activities = createSleepActivities(params)

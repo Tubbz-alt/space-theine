@@ -9,6 +9,9 @@ import { Activities } from '../../screens';
 const maximumDailyTimeShiftPositive: number = 1; // negative number = travel west
 const maximumDailyTimeShiftNegative: number = 1.5; // positive number = travel east
 
+const MAX_DAILY_TIME_SHIFT_WEST: Duration = Duration.fromObject({ hours: 1 });
+const MAX_DAILY_TIME_SHIFT_EAST: Duration = Duration.fromObject({ hours: 1, minutes: 30 })
+
 /* PUBLIC AND PRIVATE TYPES */
 
 export type SimpleTime = { // @TODO: library?
@@ -37,6 +40,11 @@ export type Result = {
   activities: Array<Activity>,
 }
 
+export type Shift = {
+  byNumOfDays: number,
+  byTime: Duration
+}
+
 /* PRIVATE FUNCTIONS */
 
 const getCurrentPossibleTimeShift = (params: Params): number => {
@@ -52,6 +60,30 @@ const isTimeshiftPositive = (params: Params): boolean => {
 };
 
 /* FUNCTIONS MADE PUBLIC FOR UNIT TESTS */
+
+
+
+
+export const createShift = (
+  params: Params
+): Shift => {
+  if (params.timeZoneDifference > 0) { /** Eastwards */
+    const numOfDaysReq = Math.ceil(params.timeZoneDifference / MAX_DAILY_TIME_SHIFT_EAST.as("hours"))
+    const shift: Shift = {
+      byNumOfDays: Math.abs(numOfDaysReq),
+      byTime: MAX_DAILY_TIME_SHIFT_EAST
+    }
+    return shift
+  } else { /** Westwards */
+    const numOfDaysReq = Math.ceil(params.timeZoneDifference / MAX_DAILY_TIME_SHIFT_WEST.as("hours"))
+    const shift: Shift = {
+      byNumOfDays: Math.abs(numOfDaysReq),
+      byTime: MAX_DAILY_TIME_SHIFT_WEST
+    }
+    return shift
+  }
+}
+
 
 export const createSleepActivities = (params: Params): Activity[] => {
   const timeshiftDirectionPositive = isTimeshiftPositive(params); // I know...
