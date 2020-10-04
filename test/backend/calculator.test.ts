@@ -16,6 +16,18 @@ import { createFactory } from "react"
 
 describe("Backend scheduler", () => {
 
+  it("should should not crush when provided proper parameters", () => {
+    const params: Params = {
+      timeZoneDifference: -6,
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
+    }
+    expect(calculate(params)).toHaveProperty("activities")
+  })
+
   it("tests getNumOfReqShiftDays", () => {
     const params_west: Params = {
       timeZoneDifference: -4,
@@ -322,19 +334,6 @@ describe("Backend scheduler", () => {
         type: "avoid-morning-light",
       }
     ])
-  })
-
-
-  it("should should not crush when provided proper parameters", () => {
-    const params: Params = {
-      timeZoneDifference: -6,
-      normalSleepingHoursStart: { hour: 23, minute: 0 },
-      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
-      normalBreakfastStart: { hour: 8, minute: 0 },
-      normalLunchStart: { hour: 13, minute: 0 },
-      normalDinnerStart: { hour: 20, minute: 0 },
-    }
-    expect(calculate(params)).toHaveProperty("activities")
   })
 
 
