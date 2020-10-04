@@ -246,9 +246,6 @@ export const createDinnerActivities = (
 }
 
 
-
-
-/** TODO: Add test */
 export const createCountermeasureActivities = (
   params: Params, sleepActivities: Activity[]
 ): Activity[] => {
