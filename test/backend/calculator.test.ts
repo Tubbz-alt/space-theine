@@ -106,12 +106,12 @@ describe("Backend scheduler", () => {
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-07T00:30:00"),
+        startTime: DateTime.fromISO("2020-10-08T00:30:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-08T02:00:00"),
+        startTime: DateTime.fromISO("2020-10-09T02:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       }
