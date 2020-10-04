@@ -101,7 +101,7 @@ const NOW_LINE_WRAPPER: ViewStyle = {
 
 const NOW_LINE: ViewStyle = {
   borderBottomWidth: 2,
-  borderBottomColor: 'black',
+  borderBottomColor: "#9d0085",
 }
 
 function EventBox({ duration, offset, activity }: { duration: number, offset: number, activity: ExtendedActivity }) {
