@@ -4,7 +4,12 @@ import { Activities } from '../../screens';
 /* PUBLIC AND PRIVATE CONSTS */
 
 /**
+ * Maximum daily time shift (in hours)
+ *
  * We don't use words East/West in variable names, we just focus on numeric change
+ *
+ * based on:
+ * @TODO
  */
 const maximumDailyTimeShiftPositive: number = 1; // negative number = travel west
 const maximumDailyTimeShiftNegative: number = 1.5; // positive number = travel east
@@ -27,7 +32,7 @@ export type Params = {
 export type Activity = {
   startTime: DateTime,
   duration: Duration,
-  type: 'sleep' | 'melatonin' | 'avoid-bright-light' | 'seek-darkness' | 'seek-bright-light' | 'avoid-darkness' | 'avoid-morning-light',
+  type: 'sleep' | 'melatonin' | 'avoid-bright-light' | 'seek-darkness' | 'seek-bright-light' | 'avoid-darkness' | 'avoid-morning-light' | 'exercise',
 }
 
 export type Result = {
