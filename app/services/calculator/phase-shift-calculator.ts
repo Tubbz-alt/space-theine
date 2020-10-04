@@ -117,7 +117,6 @@ export const createFoodAvoidanceActivities = (
 }
 
 
-/** TODO: Add test */
 export const createBreakfastActivities = (
   params: Params
 ): Activity[] => {
@@ -160,7 +159,7 @@ export const createBreakfastActivities = (
   return breakfastActivities
 }
 
-/** TODO: Add test */
+
 export const createLunchActivities = (
   params: Params
 ): Activity[] => {
@@ -204,8 +203,6 @@ export const createLunchActivities = (
 }
 
 
-
-/** TODO: Add test */
 export const createDinnerActivities = (
   params: Params
 ): Activity[] => {
