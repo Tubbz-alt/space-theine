@@ -10,6 +10,7 @@ import { DateTime, Duration } from "luxon"
 import { Activity } from "../services/calculator/phase-shift-calculator"
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { activityColor, activityIcon, activityTitle } from "../utils/activity"
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
@@ -63,59 +64,9 @@ function ActivityBox({ activity }: { activity: Activity }) {
       return () => clearInterval(ref.current);
   }, []);
 
-  const title = (() => {
-    switch (activity.type) {
-      case 'sleep': return 'Time for sleep!';
-      case 'melatonin': return 'Take melatonin!';
-      case 'avoid-bright-light': return 'Avoid bright light!';
-      case 'avoid-darkness': return 'Avoid darkness!';
-      case 'avoid-morning-light': return 'Avoid morning light!';
-      case 'seek-bright-light': return 'Seek bright light!';
-      case 'seek-darkness': return 'Seek darkness!';
-      case 'exercise': return 'Sport time!';
-      case 'avoid-food': return 'Avoid food!';
-      case 'breakfast': return 'Breakfast';
-      case 'dinner': return 'Dinner';
-      case 'lunch': return 'Lunch';
-      default: return 'Unknown event!';
-    }
-  })();
-
-  const color = (() => {
-    switch (activity.type) {
-      case 'sleep': return '#5D2555';
-      case 'melatonin': return '#ad3d3f';
-      case 'avoid-food': return '#f3b933';
-      /*case 'medicine': return '#a25c5d';
-      case 'work': return '#4f6cbd';
-      case 'food': return '#f3b933';
-      */
-      default: return 'gray';
-    }
-  })();
-
-  const icon = (() => {
-    const props = {
-      size: 32,
-      color: 'white',
-    };
-
-    switch (activity.type) {
-      case 'sleep': return <Ionicons name="md-bed" {...props} />;
-      case 'melatonin': return <FontAwesome5 name="pills" {...props} />;
-      case 'avoid-food': return <Ionicons name="ios-hand" {...props} />;
-      case 'avoid-bright-light': return <Ionicons name="ios-glasses" {...props} />;
-      case 'avoid-darkness': return <Ionicons name="md-sunny" {...props} />;
-      case 'avoid-morning-light': return <Ionicons name="ios-glasses" {...props} />;
-      case 'seek-bright-light': return <Ionicons name="md-sunny" {...props} />;
-      case 'seek-darkness': return <Ionicons name="ios-glasses" {...props} />;
-      case 'exercise': return <Ionicons name="ios-basketball" {...props} />;
-      case 'breakfast': return <Ionicons name="md-pizza" {...props} />;
-      case 'dinner': return <Ionicons name="md-pizza" {...props} />;
-      case 'lunch': return <Ionicons name="md-pizza" {...props} />;
-      default: return <Ionicons name="ios-radio-button-off" {...props} />;
-    }
-  })();
+  const title = activityTitle(activity.type);
+  const color = activityColor(activity.type);
+  const icon = activityIcon(activity.type);
 
   let diffNow = activity.startTime.diffNow().plus({ seconds: 0, minutes: 0, hours: 0, days: 0, weeks: 0 }).normalize();
   let duration = activity.duration.plus({ seconds: 0, minutes: 0, hours: 0, days: 0, weeks: 0 }).normalize();
@@ -148,8 +99,6 @@ function ActivityBox({ activity }: { activity: Activity }) {
 export function Activities() {
   const navigation = useNavigation()
   const [state, update] = useContext(stateContext);
-
-  console.log(DateTime.local().minus({ minutes: 5, seconds: 1 }).diffNow().normalize().minutes);
 
   return (
     <View style={FULL}>

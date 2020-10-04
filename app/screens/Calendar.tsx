@@ -10,6 +10,7 @@ import { DateTime, Duration } from "luxon"
 import { Activity } from "../services/calculator/phase-shift-calculator"
 import { compareDatesAsc } from "../utils/date"
 import { useScreens } from "react-native-screens"
+import { activityColor, activityTitle } from "../utils/activity"
 
 const TIME_FORMAT: 12 | 24 = 12;
 const EXTEND_DURATION: number = 30;
@@ -106,25 +107,8 @@ const NOW_LINE: ViewStyle = {
 function EventBox({ duration, offset, activity }: { duration: number, offset: number, activity: ExtendedActivity }) {
   let dimensions = useWindowDimensions();
 
-  const title = (() => {
-    switch (activity.type) {
-      case 'sleep': return 'Time for sleep!';
-      case 'melatonin': return 'Take melatonin!';
-      default: return 'Scratch your ass';
-    }
-  })();
-
-  const color = (() => {
-    switch (activity.type) {
-      case 'sleep': return '#5D2555';
-      case 'melatonin': return '#ad3d3f';
-      /*case 'medicine': return '#a25c5d';
-      case 'work': return '#4f6cbd';
-      case 'food': return '#f3b933';
-      */
-      default: return 'gray';
-    }
-  })();
+  const title = activityTitle(activity.type);
+  const color = activityColor(activity.type);
 
   const style = (() => {
     switch (activity.column) {
