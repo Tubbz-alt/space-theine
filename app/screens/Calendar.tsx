@@ -234,7 +234,7 @@ export function Calendar() {
       <Header
         style={HEADER}
         titleStyle={HEADER_TITLE}
-        leftIcon="back"
+        leftIcon="ios-arrow-back"
         headerText="SPACE THEINE"
         onLeftPress={() => navigation.navigate('activities')}
       />

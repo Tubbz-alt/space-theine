@@ -1,5 +1,6 @@
 import {
   calculate,
+  getNumOfReqShiftDays,
   createSleepActivities,
   createMelatoninIntakeActivies,
   Params,
@@ -8,70 +9,86 @@ import {
 import { DateTime, Duration } from "luxon"
 
 describe("Backend scheduler", () => {
-  it("should should not crush when provided proper parameters", () => {
-    const params: Params = {
-      timeZoneDifference: -6,
-      normalSleepingHoursStart: { hours: 23, minutes: 0 },
-      normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+
+  it("tests getNumOfReqShiftDays", () => {
+    const params_west: Params = {
+      timeZoneDifference: -4,
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
     }
-    expect(calculate(params)).toHaveProperty("activities")
+    const numOfReqShiftDaysWest: number = getNumOfReqShiftDays(params_west)
+    expect(numOfReqShiftDaysWest).toBe(4)
+    const params_east: Params = {
+      timeZoneDifference: 4,
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
+    }
+    const numOfReqShiftDaysEast: number = getNumOfReqShiftDays(params_east)
+    expect(numOfReqShiftDaysEast).toBe(3)
   })
 
-  it("should calculate positive time shift", () => {
+  it("tests createSleepActivities travelling west", () => {
     const params: Params = {
-      startAt: DateTime.fromISO("2020-10-05T08:00:00"),
-      timeZoneDifference: 6, // positive so we travel west => we have to wake up earlier
-      normalSleepingHoursStart: { hours: 23, minutes: 0 },
-      normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+      startAt: DateTime.fromISO("2020-10-06T08:00:00"),
+      timeZoneDifference: -4, // travel west
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
     }
 
-    const activities = createSleepActivities(params)
-
-    expect(activities.length).toBe(4)
-    expect(activities).toStrictEqual([
+    const sleepActivities = createSleepActivities(params)
+    expect(sleepActivities).toStrictEqual([
       {
-        startTime: DateTime.fromISO("2020-10-05T21:30:00"),
+        startTime: DateTime.fromISO("2020-10-06T23:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-06T20:00:00"),
+        startTime: DateTime.fromISO("2020-10-07T22:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-07T18:30:00"),
+        startTime: DateTime.fromISO("2020-10-08T21:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-08T17:00:00"),
+        startTime: DateTime.fromISO("2020-10-09T20:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
     ])
   })
 
-
-  it("should calculate negative time shift", () => {
+  it("tests createSleepActivities travelling east", () => {
     const params: Params = {
-      startAt: DateTime.fromISO("2020-10-05T08:00:00"),
-      timeZoneDifference: -6, // negative so we travel west => we have to wake up later
-      normalSleepingHoursStart: { hours: 23, minutes: 0 },
-      normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+      startAt: DateTime.fromISO("2020-10-06T08:00:00"),
+      timeZoneDifference: 4, // travel east
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
     }
 
-    const activities = createSleepActivities(params)
-
-    expect(activities.length).toBe(6)
-    expect(activities).toStrictEqual([
+    const sleepActivities = createSleepActivities(params)
+    expect(sleepActivities).toStrictEqual([
       {
-        startTime: DateTime.fromISO("2020-10-06T00:00:00"),
+        startTime: DateTime.fromISO("2020-10-06T23:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
       {
-        startTime: DateTime.fromISO("2020-10-07T01:00:00"),
+        startTime: DateTime.fromISO("2020-10-07T00:30:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
       },
@@ -79,31 +96,33 @@ describe("Backend scheduler", () => {
         startTime: DateTime.fromISO("2020-10-08T02:00:00"),
         duration: Duration.fromISO("PT8H"),
         type: "sleep",
-      },
-      {
-        startTime: DateTime.fromISO("2020-10-09T03:00:00"),
-        duration: Duration.fromISO("PT8H"),
-        type: "sleep",
-      },
-      {
-        startTime: DateTime.fromISO("2020-10-10T04:00:00"),
-        duration: Duration.fromISO("PT8H"),
-        type: "sleep",
-      },
-      {
-        startTime: DateTime.fromISO("2020-10-11T05:00:00"),
-        duration: Duration.fromISO("PT8H"),
-        type: "sleep",
-      },
+      }
     ])
   })
+
+
+  it("should should not crush when provided proper parameters", () => {
+    const params: Params = {
+      timeZoneDifference: -6,
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
+    }
+    expect(calculate(params)).toHaveProperty("activities")
+  })
+
 
   it("tests createMelatoninIntakeActivies", () => {
     const params: Params = {
       startAt: DateTime.fromISO("2020-10-05T08:00:00"),
       timeZoneDifference: 6, // positive so we travel east
-      normalSleepingHoursStart: { hours: 23, minutes: 0 },
-      normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
     }
 
     const sleep_activity: Activity = {

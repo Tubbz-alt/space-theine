@@ -1,20 +1,17 @@
 import { DateTime, Duration } from 'luxon';
-import { Activities } from '../../screens';
 import { compareDatesAsc } from '../../utils/date';
 
 /* PUBLIC AND PRIVATE CONSTS */
 
-/**
- * We don't use words East/West in variable names, we just focus on numeric change
- */
-const maximumDailyTimeShiftPositive: number = 1; // negative number = travel west
-const maximumDailyTimeShiftNegative: number = 1.5; // positive number = travel east
+const MAX_DAILY_TIME_SHIFT_NEGATIVE: Duration = Duration.fromObject({ hours: 1 });
+const MAX_DAILY_TIME_SHIFT_POSITIVE: Duration = Duration.fromObject({ hours: 1, minutes: 30 })
+
 
 /* PUBLIC AND PRIVATE TYPES */
 
 export type SimpleTime = { // @TODO: library?
-  hours: number,
-  minutes: number,
+  hour: number,
+  minute: number,
 }
 
 // @TODO: export interface to separate file to make collaboration easier
@@ -31,67 +28,72 @@ export type Params = {
 export type Activity = {
   startTime: DateTime,
   duration: Duration,
-  type: 'sleep' | 'melatonin' | 'avoid-bright-light' | 'seek-darkness' | 'seek-bright-light' | 'avoid-darkness' | 'avoid-morning-light' | 'avoid-food',
+  type: 'sleep' |
+  'melatonin' |
+  'avoid-bright-light' |
+  'seek-darkness' |
+  'seek-bright-light' |
+  'avoid-darkness' |
+  'avoid-morning-light' |
+  'avoid-food',
 }
 
 export type Result = {
   activities: Array<Activity>,
 }
 
+
 /* PRIVATE FUNCTIONS */
 
-const getCurrentPossibleTimeShift = (params: Params): number => {
-  return isTimeshiftPositive(params) ?
-    maximumDailyTimeShiftNegative : maximumDailyTimeShiftPositive;
-};
-
-/**
- * In other words: Is timeshift westward
- */
-const isTimeshiftPositive = (params: Params): boolean => {
-  return params.timeZoneDifference > 0;
-};
-
-/* FUNCTIONS MADE PUBLIC FOR UNIT TESTS */
-
-export const createSleepActivities = (params: Params): Activity[] => {
-  const timeshiftDirectionPositive = isTimeshiftPositive(params); // I know...
-  const currentDailyTimeShift = getCurrentPossibleTimeShift(params);
-  // if time shift is positive it means we travel west => so we should wake up ealier => so we dailyShift should be negative
-  // i'M So lOgiCaL
-  const currentDailyTimeShiftWithSign = timeshiftDirectionPositive ? -currentDailyTimeShift : currentDailyTimeShift;
-
-  let startAt = params.startAt;
-  if (startAt === undefined) {
-    startAt = DateTime.local();
+export const getNumOfReqShiftDays = (
+  params: Params
+): number => {
+  if (params.timeZoneDifference > 0) { /** Eastwards */
+    return Math.ceil(Math.abs(params.timeZoneDifference / MAX_DAILY_TIME_SHIFT_POSITIVE.as("hours")))
+  } else { /** Westwards */
+    return Math.ceil(Math.abs(params.timeZoneDifference / MAX_DAILY_TIME_SHIFT_NEGATIVE.as("hours")))
   }
-  const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
+}
 
-  let timeshiftLeft = Math.abs(params.timeZoneDifference);
-  // let lastActivityTime: DateTime|null = null;
-  let dayNumber = 0;
-  while (timeshiftLeft > 0) {
-    let activityStartTime = DateTime.fromObject({
-      ...startAt.toObject(),
-      hour: params.normalSleepingHoursStart.hours,
-      minute: params.normalSleepingHoursStart.minutes,
-      second: 0,
-      millisecond: 0,
-    });
-    activityStartTime = activityStartTime.plus({ days: dayNumber, hours: currentDailyTimeShiftWithSign * (dayNumber + 1) });
+export const createSleepActivities = (
+  params: Params
+): Activity[] => {
+  let sleepActivities = <Activity[]>[]
+  const startTime = params.startAt || DateTime.local()
+  const numOfReqShiftDays: number = getNumOfReqShiftDays(params)
+  let dailyTimeShift = startTime.set(params.normalSleepingHoursStart)
+  if (params.timeZoneDifference > 0) { /** Eastwards */
+    for (var day = 0; day < numOfReqShiftDays; day++) {
+      const sleepingStart = startTime.plus({ day: day }).set({
+        hour: dailyTimeShift.get("hour"),
+        minute: dailyTimeShift.get("minute")
+      })
+      const sleepActivity: Activity = {
+        startTime: sleepingStart,
+        duration: params.normalSleepingHoursDuration,
+        type: 'sleep'
+      }
+      sleepActivities.push(sleepActivity)
+      dailyTimeShift = dailyTimeShift.plus(MAX_DAILY_TIME_SHIFT_POSITIVE)
+    }
+  } else { /** Westwards */
+    for (var day = 0; day < numOfReqShiftDays; day++) {
+      const sleepingStart = startTime.plus({ day: day }).set({
+        hour: dailyTimeShift.get("hour"),
+        minute: dailyTimeShift.get("minute")
+      })
 
-    let activity: Activity = {
-      type: 'sleep',
-      startTime: activityStartTime,
-      duration: params.normalSleepingHoursDuration
-    };
-    activities.push(activity);
-    timeshiftLeft -= currentDailyTimeShift;
-    // lastActivityTime = 0;
-    dayNumber++;
+      const sleepActivity: Activity = {
+        startTime: sleepingStart,
+        duration: params.normalSleepingHoursDuration,
+        type: 'sleep'
+      }
+      sleepActivities.push(sleepActivity)
+      dailyTimeShift = dailyTimeShift.minus(MAX_DAILY_TIME_SHIFT_NEGATIVE)
+    }
   }
-  return activities;
-};
+  return sleepActivities
+}
 
 
 /** TODO: Add test */
@@ -109,8 +111,6 @@ export const createFoodAvoidanceActivities = (
   }
   return foodAvoidanceActivities
 }
-
-
 
 
 /** TODO: Add test */
@@ -200,10 +200,20 @@ export const createMelatoninIntakeActivies = (
 
 export const calculate = (params: Params): Result => {
   const activities = <Activity[]>[]; // just like: let activities: Activity[] = [];
+
   const sleepActivities = createSleepActivities(params);
   activities.push(...sleepActivities);
+
+  const foodAvoidanceActivities = createFoodAvoidanceActivities(params, sleepActivities);
+  activities.push(...foodAvoidanceActivities);
+
+  const countermeasureActivities = createCountermeasureActivities(params, sleepActivities);
+  activities.push(...countermeasureActivities);
+
   const melatoninIntakeActivities = createMelatoninIntakeActivies(params, sleepActivities)
   activities.push(...melatoninIntakeActivities);
+
   activities.sort((a, b) => compareDatesAsc(a.startTime, b.startTime));
+
   return { activities };
 };

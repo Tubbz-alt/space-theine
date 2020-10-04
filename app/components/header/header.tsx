@@ -3,9 +3,9 @@ import { View, ViewStyle, TextStyle } from "react-native"
 import { HeaderProps } from "./header.props"
 import { Button } from "../button/button"
 import { Text } from "../text/text"
-import { Icon } from "../icon/icon"
 import { spacing } from "../../theme"
 import { translate } from "../../i18n/"
+import { Ionicons } from '@expo/vector-icons';
 
 // static styles
 const ROOT: ViewStyle = {
@@ -41,7 +41,7 @@ export function Header(props: HeaderProps) {
     <View style={{ ...ROOT, ...style }}>
       {leftIcon ? (
         <Button preset="link" onPress={onLeftPress}>
-          <Icon icon={leftIcon} />
+          <Ionicons name={leftIcon} size={32} color="white" />
         </Button>
       ) : (
         <View style={LEFT} />
@@ -51,7 +51,7 @@ export function Header(props: HeaderProps) {
       </View>
       {rightIcon ? (
         <Button preset="link" onPress={onRightPress}>
-          <Icon icon={rightIcon} />
+          <Ionicons name={rightIcon} size={32} color="white" />
         </Button>
       ) : (
         <View style={RIGHT} />
