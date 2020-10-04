@@ -155,6 +155,51 @@ export const createBreakfastActivities = (
   return breakfastActivities
 }
 
+/** TODO: Add test */
+export const createLunchActivities = (
+  params: Params
+): Activity[] => {
+  let lunchActivities = <Activity[]>[]
+  if (!params.normalLunchStart) {
+    return lunchActivities
+  }
+  const startTime = params.startAt || DateTime.local()
+  const numOfReqShiftDays: number = getNumOfReqShiftDays(params)
+  let dailyTimeShift = startTime.set(params.normalLunchStart)
+  if (params.timeZoneDifference > 0) { /** Eastwards */
+    for (var day = 0; day < numOfReqShiftDays; day++) {
+      const lunchStart = startTime.plus({ day: day }).set({
+        hour: dailyTimeShift.get("hour"),
+        minute: dailyTimeShift.get("minute")
+      })
+      const lunchActivity: Activity = {
+        startTime: lunchStart,
+        duration: Duration.fromObject({ hour: 1 }),
+        type: 'sleep'
+      }
+      lunchActivities.push(lunchActivity)
+      dailyTimeShift = dailyTimeShift.plus(MAX_DAILY_TIME_SHIFT_POSITIVE)
+    }
+  } else { /** Westwards */
+    for (var day = 0; day < numOfReqShiftDays; day++) {
+      const lunchStart = startTime.plus({ day: day }).set({
+        hour: dailyTimeShift.get("hour"),
+        minute: dailyTimeShift.get("minute")
+      })
+      const lunchActivity: Activity = {
+        startTime: lunchStart,
+        duration: Duration.fromObject({ hour: 1 }),
+        type: 'sleep'
+      }
+      lunchActivities.push(lunchActivity)
+      dailyTimeShift = dailyTimeShift.minus(MAX_DAILY_TIME_SHIFT_NEGATIVE)
+    }
+  }
+  return lunchActivities
+}
+
+
+
 
 
 
