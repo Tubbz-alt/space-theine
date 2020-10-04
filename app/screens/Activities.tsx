@@ -37,7 +37,7 @@ const HEADER_TITLE: TextStyle = {
 
 const ACTIVITY_BOX: ViewStyle = {
   padding: 20,
-  paddingBottom: 40,
+  paddingBottom: 20,
   marginVertical: 6,
   borderRadius: 5,
   shadowColor: "#000000",
@@ -71,7 +71,7 @@ function ActivityBox({ activity }: { activity: Activity }) {
   const color = (() => {
     switch (activity.type) {
       case 'sleep': return '#5D2555';
-      case 'melatonin': return '#ab4d4e';
+      case 'melatonin': return '#ad3d3f';
       /*case 'medicine': return '#a25c5d';
       case 'work': return '#4f6cbd';
       case 'food': return '#f3b933';
@@ -80,22 +80,19 @@ function ActivityBox({ activity }: { activity: Activity }) {
     }
   })();
 
-  let diffNow = activity.startTime.diffNow().plus({ seconds: 0, minutes: 0, hours: 0, days: 0 }).normalize();
-
-  let diffMessage;
-
-  if (diffNow.minutes >= -1 && diffNow.minutes <= 1) {
-    diffMessage = 'just now';
-  } else if (diffNow.minutes > 1) {
-    diffMessage = `in ${diffNow.minutes} minutes`;
-  } else {
-    diffMessage = `${Math.abs(diffNow.minutes)} minutes ago`;
-  }
+  let diffNow = activity.startTime.diffNow().plus({ seconds: 0, minutes: 0, hours: 0, days: 0, weeks: 0 }).normalize();
+  let duration = activity.duration.plus({ seconds: 0, minutes: 0, hours: 0, days: 0, weeks: 0 }).normalize();
+  let durationMessage = makeEndTimeMessage(activity.startTime, duration);
 
   return (
     <View style={{...ACTIVITY_BOX, backgroundColor: color}}>
       <Text style={{color: 'white'}}>{title}</Text>
-      <Text style={{color: 'white'}}>{diffMessage}</Text>
+      <Text style={{color: 'white'}}>{makeStartTimeMessage(diffNow)}</Text>
+      {durationMessage !== null ? (<>
+        <Text style={{color: 'white'}}></Text>
+        <Text style={{color: 'white'}}></Text>
+        <Text style={{color: 'white'}}>{durationMessage}</Text>
+      </>) : (null)}
     </View>
   )
 }
@@ -113,8 +110,10 @@ export function Activities() {
         style={HEADER}
         titleStyle={HEADER_TITLE}
         leftIcon="back"
+        rightIcon="back"
         headerText="SPACE THEINE"
         onLeftPress={() => navigation.navigate('input1')}
+        onRightPress={() => navigation.navigate('calendar')}
       />
       <Screen style={ACTIVITY_CONTAINER} preset="scroll" backgroundColor={color.transparent}>
         {state.activities.map((a, i) => (
@@ -124,4 +123,102 @@ export function Activities() {
       </Screen>
     </View>
   )
+}
+
+
+function makeStartTimeMessage(d: Duration): string {
+  if (d.weeks > 0) {
+    if (d.days > 0) {
+      return `in ${writeCount('week', d.weeks)} and ${writeCount('day', d.days)}`;
+    } else {
+      return `in ${writeCount('week', d.weeks)}`
+    }
+  }
+  else if (d.days > 0) {
+    if (d.hours > 0) {
+      return `in ${writeCount('day', d.days)} and ${writeCount('hour', d.hours)}`;
+    } else {
+      return `in ${writeCount('day', d.days)}`
+    }
+  }
+  else if (d.hours > 0) {
+    if (d.minutes > 0) {
+      return `in ${writeCount('hour', d.hours)} and ${writeCount('minute', d.minutes)}`;
+    } else {
+      return `in ${writeCount('hour', d.hours)}`
+    }
+  }
+  else if (d.minutes > 0) {
+    return `in ${writeCount('minute', d.minutes)}`;
+  }
+
+
+  else if (d.minutes === 0) {
+    return 'just now';
+  }
+
+
+  else if (d.weeks < 0) {
+    if (d.days < 0) {
+      return `${writeCount('week', d.weeks)} and ${writeCount('day', d.days)} ago`;
+    } else {
+      return `${writeCount('week', d.weeks)} ago`
+    }
+  }
+  else if (d.days < 0) {
+    if (d.hours < 0) {
+      return `${writeCount('day', d.days)} and ${writeCount('hour', d.hours)} ago`;
+    } else {
+      return `${writeCount('day', d.days)} ago`
+    }
+  }
+  else if (d.hours < 0) {
+    if (d.minutes < 0) {
+      return `${writeCount('hour', d.hours)} and ${writeCount('minute', d.minutes)} ago`;
+    } else {
+      return `${writeCount('hour', d.hours)} ago`
+    }
+  }
+  else if (d.minutes < 0) {
+    return `${writeCount('minute', d.minutes)} ago`;
+  }
+
+  return 'never :<';
+}
+
+function makeEndTimeMessage(startTime: DateTime, d: Duration): string | null {
+  if (d.weeks > 0) {
+    if (d.days > 0) {
+      return `for ${writeCount('week', d.weeks)} and ${writeCount('day', d.days)}`;
+    } else {
+      return `for ${writeCount('week', d.weeks)}`
+    }
+  }
+  else if (d.days > 0) {
+    if (d.hours > 0) {
+      return `for ${writeCount('day', d.days)} and ${writeCount('hour', d.hours)}`;
+    } else {
+      return `for ${writeCount('day', d.days)}`
+    }
+  }
+  else if (d.hours > 0) {
+    if (d.minutes > 0) {
+      return `for ${writeCount('hour', d.hours)} and ${writeCount('minute', d.minutes)}`;
+    } else {
+      return `for ${writeCount('hour', d.hours)}`
+    }
+  }
+  else if (d.minutes >= 15) {
+    return `for ${writeCount('minute', d.minutes)}`;
+  }
+
+  return null;
+}
+
+function writeCount(s: string, count: number): string {
+  let c = Math.abs(count);
+  if (c == 1) {
+    return `${c} ${s}`;
+  }
+  return `${c} ${s}s`;
 }
