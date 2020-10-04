@@ -12,7 +12,7 @@ const ROOT: ViewStyle = {
   flexDirection: "row",
   paddingHorizontal: spacing[4],
   alignItems: "center",
-  paddingTop: spacing[5] + (Platform.OS !== "android" ? 20 : 0),
+  paddingTop: spacing[5] + 20,
   paddingBottom: spacing[5],
   justifyContent: "flex-start",
 }

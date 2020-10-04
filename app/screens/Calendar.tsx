@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native"
 import React, { useContext, useEffect, useReducer, useRef, useState } from "react"
-import { View, Image, ViewStyle, TextStyle, ImageStyle, SafeAreaView, StyleSheet, useWindowDimensions } from "react-native"
+import { View, Platform, Image, ViewStyle, TextStyle, ImageStyle, SafeAreaView, StyleSheet, useWindowDimensions } from "react-native"
 import { Button, Header, Screen, Text, TextField, Wallpaper } from "../components"
 import { color, spacing, typography } from "../theme"
 import { colors, Input, Slider } from 'react-native-elements';
@@ -34,7 +34,7 @@ const TEXT: TextStyle = {
 const BOLD: TextStyle = { fontWeight: "bold" }
 const HEADER: TextStyle = {
   backgroundColor: color.primaryDarker,
-  paddingTop: spacing[3],
+  paddingTop: spacing[3] + (Platform.OS !== "android" ? 10 : 0),
   paddingBottom: spacing[3],
   paddingHorizontal: spacing[4],
 }
