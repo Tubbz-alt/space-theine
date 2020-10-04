@@ -52,7 +52,7 @@ describe('Backend scheduler', () => {
   it('should calculate positive time shift', () => {
     const params: Params = {
       startAt: DateTime.fromISO('2020-10-05T08:00:00'),
-      timeZoneDifference: 6, // positive so we travel west => we have to wake up earlier
+      timeZoneDifference: 6, // positive so we travel east => we have to wake up earlier
       normalSleepingHoursStart: { hour: 23, minute: 0 },
       normalSleepingHoursDuration: Duration.fromObject({ hours: 8 }),
       normalBreakfastStart: { hour: 8, minute: 0 },
@@ -178,96 +178,6 @@ describe('Backend scheduler', () => {
         startTime: DateTime.fromISO('2020-10-08T00:00:00'),
         duration: Duration.fromISO('PT2H'),
         type: 'avoid-food',
-      },
-    ]);
-  });
-
-  it('tests createBreakfastActivities', () => {
-    const params: Params = {
-      startAt: DateTime.fromISO('2020-10-06T08:00:00'),
-      timeZoneDifference: 4, // travel east
-      normalSleepingHoursStart: { hour: 23, minute: 0 },
-      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
-      normalBreakfastStart: { hour: 8, minute: 0 },
-      normalLunchStart: { hour: 13, minute: 0 },
-      normalDinnerStart: { hour: 20, minute: 0 },
-    };
-    const breakfastActivities = createBreakfastActivities(params);
-    expect(breakfastActivities).toStrictEqual([
-      {
-        startTime: DateTime.fromISO('2020-10-06T08:00:00'),
-        duration: Duration.fromISO('PT30M'),
-        type: 'breakfast',
-      },
-      {
-        startTime: DateTime.fromISO('2020-10-07T09:30:00'),
-        duration: Duration.fromISO('PT30M'),
-        type: 'breakfast',
-      },
-      {
-        startTime: DateTime.fromISO('2020-10-08T11:00:00'),
-        duration: Duration.fromISO('PT30M'),
-        type: 'breakfast',
-      },
-    ]);
-  });
-
-  it('tests createLunchActivities', () => {
-    const params: Params = {
-      startAt: DateTime.fromISO('2020-10-06T08:00:00'),
-      timeZoneDifference: 4, // travel east
-      normalSleepingHoursStart: { hour: 23, minute: 0 },
-      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
-      normalBreakfastStart: { hour: 8, minute: 0 },
-      normalLunchStart: { hour: 13, minute: 0 },
-      normalDinnerStart: { hour: 20, minute: 0 },
-    };
-    const lunchActivities = createLunchActivities(params);
-    expect(lunchActivities).toStrictEqual([
-      {
-        startTime: DateTime.fromISO('2020-10-06T13:00:00'),
-        duration: Duration.fromISO('PT1H'),
-        type: 'lunch',
-      },
-      {
-        startTime: DateTime.fromISO('2020-10-07T14:30:00'),
-        duration: Duration.fromISO('PT1H'),
-        type: 'lunch',
-      },
-      {
-        startTime: DateTime.fromISO('2020-10-08T16:00:00'),
-        duration: Duration.fromISO('PT1H'),
-        type: 'lunch',
-      },
-    ]);
-  });
-
-  it('tests createDinnerActivities', () => {
-    const params: Params = {
-      startAt: DateTime.fromISO('2020-10-06T08:00:00'),
-      timeZoneDifference: 4, // travel east
-      normalSleepingHoursStart: { hour: 23, minute: 0 },
-      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
-      normalBreakfastStart: { hour: 8, minute: 0 },
-      normalLunchStart: { hour: 13, minute: 0 },
-      normalDinnerStart: { hour: 20, minute: 0 },
-    };
-    const dinnerActivities = createDinnerActivities(params);
-    expect(dinnerActivities).toStrictEqual([
-      {
-        startTime: DateTime.fromISO('2020-10-06T20:00:00'),
-        duration: Duration.fromISO('PT1H'),
-        type: 'dinner',
-      },
-      {
-        startTime: DateTime.fromISO('2020-10-07T21:30:00'),
-        duration: Duration.fromISO('PT1H'),
-        type: 'dinner',
-      },
-      {
-        startTime: DateTime.fromISO('2020-10-08T23:00:00'),
-        duration: Duration.fromISO('PT1H'),
-        type: 'dinner',
       },
     ]);
   });
