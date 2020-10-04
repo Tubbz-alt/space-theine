@@ -213,6 +213,37 @@ describe("Backend scheduler", () => {
   })
 
 
+  it("tests createDinnerActivities", () => {
+    const params: Params = {
+      startAt: DateTime.fromISO("2020-10-06T08:00:00"),
+      timeZoneDifference: 4, // travel east
+      normalSleepingHoursStart: { hour: 23, minute: 0 },
+      normalSleepingHoursDuration: Duration.fromObject({ hour: 8 }),
+      normalBreakfastStart: { hour: 8, minute: 0 },
+      normalLunchStart: { hour: 13, minute: 0 },
+      normalDinnerStart: { hour: 20, minute: 0 },
+    }
+    const dinnerActivities = createDinnerActivities(params)
+    expect(dinnerActivities).toStrictEqual([
+      {
+        startTime: DateTime.fromISO("2020-10-06T20:00:00"),
+        duration: Duration.fromISO("PT1H"),
+        type: "dinner",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-07T21:30:00"),
+        duration: Duration.fromISO("PT1H"),
+        type: "dinner",
+      },
+      {
+        startTime: DateTime.fromISO("2020-10-08T23:00:00"),
+        duration: Duration.fromISO("PT1H"),
+        type: "dinner",
+      }
+    ])
+  })
+
+
   it("should should not crush when provided proper parameters", () => {
     const params: Params = {
       timeZoneDifference: -6,
