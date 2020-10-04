@@ -50,11 +50,13 @@ const HEADER_TITLE: TextStyle = {
 
 
 const EVENT_BOX_WRAPPER_1: ViewStyle = {
+  padding: 1,
   position: "absolute",
   left: 80,
 }
 
 const EVENT_BOX_WRAPPER_2: ViewStyle = {
+  padding: 1,
   position: "absolute",
   right: 30
 }
@@ -120,7 +122,7 @@ function EventBox({ duration, offset, activity }: { duration: number, offset: nu
 
   return (
     <View style={{...style, width: (dimensions.width - 110) / 2, top: offset }}>
-      <View style={{...EVENT_BOX, backgroundColor: color, height: duration}}>
+      <View style={{...EVENT_BOX, backgroundColor: color, height: duration-2}}>
         <Text style={{color: 'white'}}>{title}</Text>
       </View>
     </View>
